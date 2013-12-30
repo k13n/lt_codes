@@ -1,3 +1,5 @@
+package com.k13n.lt_codes;
+
 import com.k13n.soliton.RobustSolitonGenerator;
 import java.util.Random;
 import java.util.Arrays;
