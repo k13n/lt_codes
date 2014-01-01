@@ -12,9 +12,11 @@ import java.util.Queue;
 
 public final class Decoder {
   private final int nrPackets;
+  private final int packetSize;
   private final Queue<EncodedPacket> encodedPackets;
   private final SourcePacket[] sourcePackets;
   private int nrDecodedPackets;
+  private int packetsProcessed;
 
   @SuppressWarnings("rawtypes")
   private static class Packet<T extends Packet> {
@@ -78,71 +80,94 @@ public final class Decoder {
 
   public Decoder(int nrPackets, int packetSize) {
     this.nrPackets = nrPackets;
-    encodedPackets = new PriorityQueue<>(nrPackets, new Comparator<EncodedPacket>() {
+    this.packetSize = packetSize;
+    encodedPackets = setUpQueue();
+    sourcePackets = setUpSourcePakckets();
+  }
+
+  private PriorityQueue<EncodedPacket> setUpQueue() {
+    return new PriorityQueue<>(nrPackets, new Comparator<EncodedPacket>() {
       @Override public int compare(EncodedPacket p1, EncodedPacket p2) {
         int nrNeighbors1 = p1.getNeighbors().size();
         int nrNeighbors2 = p2.getNeighbors().size();
         return Integer.compare(nrNeighbors1, nrNeighbors2);
       }
     });
-    sourcePackets = new SourcePacket[nrPackets];
+  }
+
+  private SourcePacket[] setUpSourcePakckets() {
+    SourcePacket[] sourcePackets = new SourcePacket[nrPackets];
     for (int i = 0; i < nrPackets; i++)
       sourcePackets[i] = new SourcePacket(packetSize);
+    return sourcePackets;
   }
 
   public boolean receive(byte[] data, int[] neighbors) {
+    EncodedPacket encodedPacket = createPacketFromInput(data, neighbors);
+    if (encodedPacket.getNeighbors().size() > 0) {
+      encodedPackets.offer(encodedPacket);
+      decodingStep();
+    }
+    packetsProcessed++;
+    return nrDecodedPackets == nrPackets;
+  }
+
+  private EncodedPacket createPacketFromInput(byte[] data, int[] neighbors) {
     EncodedPacket packet = new EncodedPacket(data);
     for (int neighbor : neighbors) {
       if (!sourcePackets[neighbor].isDecoded()) {
         packet.addNeighbor(sourcePackets[neighbor]);
         sourcePackets[neighbor].addNeighbor(packet);
+      } else {
+        packet.xor(sourcePackets[neighbor]);
       }
     }
-    if (packet.getNeighbors().size() > 0) {
-      encodedPackets.offer(packet);
-      decodingStep();
-    }
-    System.out.println(nrDecodedPackets + " " + nrPackets + " " + encodedPackets.size());
-    return nrDecodedPackets == nrPackets;
+    return packet;
   }
 
   private void decodingStep() {
-    while (queueHasSingleNeighborPackets()) {
+    while (queueHasSingleNeighborPacket()) {
       EncodedPacket encodedPacket = encodedPackets.poll();
       SourcePacket sourcePacket = encodedPacket.getFirstNeighbor();
       sourcePacket.xor(encodedPacket);
       sourcePacket.flagAsDecoded();
+      cascadeDecode(sourcePacket);
       nrDecodedPackets++;
-
-      Iterator<EncodedPacket> iterator = sourcePacket.getNeighbors().iterator();
-      while (iterator.hasNext()) {
-        EncodedPacket neighbor = iterator.next();
-        neighbor.xor(sourcePacket);
-        // remove each other as neighbors
-        neighbor.removeNeighbor(sourcePacket);
-        iterator.remove();
-        // re-insert encoded packet to update its position
-        if (neighbor.getNeighbors().size() > 0) {
-          encodedPackets.remove(neighbor);
-          encodedPackets.add(neighbor);
-        } else if (neighbor.getNeighbors().size() == 0)
-          encodedPackets.remove(neighbor);
-      }
     }
   }
 
-  private boolean queueHasSingleNeighborPackets() {
-//    if (!encodedPackets.isEmpty())
-//      System.out.println("foo: " + encodedPackets.peek().getNeighbors().size());
-    return !encodedPackets.isEmpty() && encodedPackets.peek().getNeighbors().size() == 1;
+  private void cascadeDecode(SourcePacket sourcePacket) {
+    Iterator<EncodedPacket> iterator = sourcePacket.getNeighbors().iterator();
+    while (iterator.hasNext()) {
+      EncodedPacket neighbor = iterator.next();
+      neighbor.xor(sourcePacket);
+      // remove each other as neighbors
+      neighbor.removeNeighbor(sourcePacket);
+      iterator.remove();
+      reheapifyQueueAfterKeyUpdate(neighbor);
+    }
+  }
+
+  private void reheapifyQueueAfterKeyUpdate(EncodedPacket packet) {
+    encodedPackets.remove(packet);
+    if (packet.getNeighbors().size() > 0)
+      encodedPackets.add(packet);
+  }
+
+  private boolean queueHasSingleNeighborPacket() {
+    return !encodedPackets.isEmpty() &&
+        encodedPackets.peek().getNeighbors().size() == 1;
   }
 
   public void write(OutputStream stream) throws IOException {
-    for(SourcePacket packet: sourcePackets)
-    {
+    for (SourcePacket packet: sourcePackets) {
       byte[] data = packet.getData().toByteArray();
-      stream.write(data, 0, data.length);
+      stream.write(data);
     }
+  }
+
+  public int getNrPacketsProcessed() {
+    return packetsProcessed;
   }
 
 }
