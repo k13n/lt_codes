@@ -41,8 +41,9 @@ public class AppTest
     }
 
     private void assertWorksWithPerfectChannel() throws Exception {
-      InputStream is = getClass().getResourceAsStream("/test.txt");
-      URL url = this.getClass().getResource("/test.txt");
+      String filename = "test.txt";
+      InputStream is = getClass().getResourceAsStream("/" + filename);
+      URL url = this.getClass().getResource("/" + filename);
       assertNotNull(url);
       File file = new File(url.getFile());
 
@@ -61,7 +62,7 @@ public class AppTest
         }
       });
 
-      dec.write(new FileOutputStream("/tmp/test.txt.out"));
+      dec.write(new FileOutputStream("/tmp/" + filename + ".out"));
 
       //assertFilesEqual("text.txt", "text.txt.out")
     }
