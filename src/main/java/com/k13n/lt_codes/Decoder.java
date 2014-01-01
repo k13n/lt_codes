@@ -9,9 +9,10 @@ public final class Decoder {
   private final Random uniformRNG;
   private final int nPackets;
   private final List<Packet> undecodedPackets;
-  private final List<Packet> decodedPackets;
+  private final Packet[] decodedPackets;
+  private int receivedPackets;
 
-  private final class Packet {
+  private static final class Packet {
     private final byte[] data;
     private final int[] neighbours;
 
@@ -46,11 +47,43 @@ public final class Decoder {
     this.uniformRNG = new Random(seed);
     this.nPackets = nPackets;
     this.undecodedPackets = new ArrayList<Packet>();
-    this.decodedPackets = new ArrayList<Packet>();
+    this.decodedPackets = new Packet[nPackets];
   }
 
-  private int getNReceivedPackets() {
-    return this.undecodedPackets.size() + this.decodedPackets.size();
+  private int nUndecodedNeighbours(Packet packet)
+  {
+    int d = 0;
+    for(int neighbourId: packet.getNeighbours())
+    {
+      if(this.decodedPackets[neighbourId] == null)
+        d++;
+    }
+    return d;
+  }
+
+  private int undecodedNeighbourId(Packet packet)
+  {
+    for(int neighbourId: packet.getNeighbours())
+    {
+      if(this.decodedPackets[neighbourId] == null)
+        return neighbourId;
+    }
+    return -1;
+  }
+
+  private Packet decodePacket(Packet packet) {
+    return null;
+  }
+
+  private void decodingStep() {
+    for(Packet packet: this.undecodedPackets)
+    {
+      if(nUndecodedNeighbours(packet) == 1)
+      {
+        int undecodedNeighbourId = undecodedNeighbourId(packet);
+        decodedPackets[undecodedNeighbourId] = decodePacket(packet);
+      }
+    }
   }
 
   public byte[] receive(byte[] data, int[] neighbours)
@@ -58,10 +91,14 @@ public final class Decoder {
     if(neighbours.length > 1)
       this.undecodedPackets.add(new Packet(data, neighbours));
     else
-      this.decodedPackets.add(new Packet(data, neighbours));
+    {
+      this.decodedPackets[neighbours[0]] = new Packet(data, neighbours);
+    }
+
+    receivedPackets++;
 
     /* No way we could encode anything */
-    if(this.getNReceivedPackets() < this.nPackets) {
+    if(receivedPackets < this.nPackets) {
 
       return null;
     } else {
@@ -71,6 +108,8 @@ public final class Decoder {
        * FIXME: use exact lower bounds here
        *
        */
+
+      decodingStep();
 
       /* ... */
 
