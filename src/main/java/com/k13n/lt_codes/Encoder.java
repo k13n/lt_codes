@@ -28,7 +28,7 @@ public final class Encoder {
   public Encoder(byte[] data, int packetSize, double failureProbability, double c) {
     this.packetSize = packetSize;
     this.seed = (long)(Math.random() * 1024 * 5);
-    this.nPackets = (int)Math.ceil(data.length / packetSize);
+    this.nPackets = (int)Math.ceil(data.length / (double)packetSize);
     this.uniformRNG = new Random(this.seed);
     this.solitonRNG = new RobustSolitonGenerator(nPackets, c, failureProbability);
 
@@ -74,7 +74,6 @@ public final class Encoder {
         /* FIXME*/
         e.printStackTrace();
       }
-
 
     }
 
