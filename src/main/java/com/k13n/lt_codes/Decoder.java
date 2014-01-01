@@ -78,14 +78,13 @@ public final class Decoder {
   }
 
   private Packet decodePacket(Packet packet) {
-    BitSet set = BitSet.valueOf(decodedPackets[packet.getNeighbours()[0]].getData());
-    for(int i = 1; i < packet.getNeighbours().length; i++)
+    BitSet set = BitSet.valueOf(packet.getData());
+    for(int i = 0; i < packet.getNeighbours().length; i++)
     {
       Packet neighbour = decodedPackets[packet.getNeighbours()[i]];
       if(neighbour != null)
         set.xor(BitSet.valueOf(neighbour.getData()));
     }
-    set.flip(0, set.cardinality());
     return new Packet(set.toByteArray(), Packet.NO_NEIGHBOURS);
   }
 
