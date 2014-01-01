@@ -4,6 +4,9 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import java.io.*;
+import com.k13n.lt_codes.*;
+
 /**
  * Unit test for simple App.
  */
@@ -33,6 +36,28 @@ public class AppTest
      */
     public void testApp()
     {
+        assertWorksWithPerfectChannel();
         assertTrue( true );
+    }
+
+    private void assertWorksWithPerfectChannel() {
+      File testFile = new File("text.txt");
+      byte[] data = new byte[(int) file.length()];
+      DataInputStream s = new DataInputStream(new FileInputStream(testFile));
+      s.readFully(data);
+      s.close();
+
+      Encoder enc = new Encoder(data, 1000, 0.1);
+      Decoder dec = new Decoder(enc.getSeed(), enc.getNPackets());
+
+      enc.encode(new Encoder.Callback(){
+        public boolean call(Encoder encoder, int[] neighbours, byte data[]) {
+          return !decoder.receive(data, neighbours);
+        }
+      });
+
+      dec.write(new FileOutputStream("test.txt.out"));
+
+      //assertFilesEqual("text.txt", "text.txt.out")
     }
 }
