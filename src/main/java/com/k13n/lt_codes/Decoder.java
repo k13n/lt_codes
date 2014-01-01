@@ -6,6 +6,7 @@ import java.util.BitSet;
 import java.util.ArrayList;
 import java.io.OutputStream;
 import java.io.IOException;
+import java.util.Iterator;
 
 public final class Decoder {
   
@@ -89,18 +90,27 @@ public final class Decoder {
   }
 
   private void decodingStep() {
-    for(Packet packet: this.undecodedPackets)
-    {
+    Iterator<Packet> iter = this.undecodedPackets.iterator();
+
+    while (iter.hasNext()) {
+      Packet packet = iter.next();
       if(nUndecodedNeighbours(packet) == 1)
       {
         int undecodedNeighbourId = undecodedNeighbourId(packet);
-        decodedPackets[undecodedNeighbourId] = decodePacket(packet);
-        nDecodedPackets++;
+        if(decodedPackets[undecodedNeighbourId] == null)
+        {
+          decodedPackets[undecodedNeighbourId] = decodePacket(packet);
+          nDecodedPackets++;
+        }
+        iter.remove();
       }
     }
   }
 
-  private void write(OutputStream stream) throws IOException {
+  public void write(OutputStream stream) throws IOException {
+    System.out.println(nDecodedPackets);
+    System.out.println(nPackets);
+
     for(Packet packet: decodedPackets)
     {
       byte[] data = packet.getData();
@@ -133,6 +143,7 @@ public final class Decoder {
        *
        */
       decodingStep();
+      System.out.println(nDecodedPackets);
     }
     return nDecodedPackets >= nPackets;
   }

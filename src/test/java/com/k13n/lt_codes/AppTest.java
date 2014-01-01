@@ -6,6 +6,7 @@ import junit.framework.TestSuite;
 
 import java.io.*;
 import com.k13n.lt_codes.*;
+import java.net.URL;
 
 /**
  * Unit test for simple App.
@@ -34,29 +35,33 @@ public class AppTest
     /**
      * Rigourous Test :-)
      */
-    public void testApp()
+    public void testApp() throws Exception
     {
         assertWorksWithPerfectChannel();
         assertTrue( true );
     }
 
-    private void assertWorksWithPerfectChannel() {
-      File testFile = new File("text.txt");
-      byte[] data = new byte[(int) file.length()];
-      DataInputStream s = new DataInputStream(new FileInputStream(testFile));
+    private void assertWorksWithPerfectChannel() throws Exception {
+      InputStream is = getClass().getResourceAsStream("/test.txt");
+      URL url = this.getClass().getResource("/test.txt");
+      assertNotNull(url);
+      File testWsdl = new File(url.getFile());
+
+      byte[] data = new byte[is.available()];
+      DataInputStream s = new DataInputStream(is);
       s.readFully(data);
       s.close();
 
-      Encoder enc = new Encoder(data, 1000, 0.1);
-      Decoder dec = new Decoder(enc.getSeed(), enc.getNPackets());
+      Encoder enc = new Encoder(data, 1000);
+      final Decoder dec = new Decoder(enc.getSeed(), enc.getNPackets());
 
       enc.encode(new Encoder.Callback(){
         public boolean call(Encoder encoder, int[] neighbours, byte data[]) {
-          return !decoder.receive(data, neighbours);
+          return dec.receive(data, neighbours);
         }
       });
 
-      dec.write(new FileOutputStream("test.txt.out"));
+      dec.write(new FileOutputStream("/tmp/test.txt.out"));
 
       //assertFilesEqual("text.txt", "text.txt.out")
     }
