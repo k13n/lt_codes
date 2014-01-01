@@ -60,7 +60,7 @@ public final class Encoder {
           int pos = packetIndex * this.packetSize;
           neighbours[i] = packetIndex;
           this.buffer.position(pos);
-          BitSet bitSet = BitSet.valueOf(this.buffer).get(0, this.packetSize);
+          BitSet bitSet = BitSet.valueOf(this.buffer).get(0, this.packetSize * 8);
           if(xorSet == null)
             xorSet = bitSet;
           else
