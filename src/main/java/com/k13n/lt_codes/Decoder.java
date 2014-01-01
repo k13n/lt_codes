@@ -8,7 +8,8 @@ public final class Decoder {
   
   private final Random uniformRNG;
   private final int nPackets;
-  private final List<Packet> receivedPackets;
+  private final List<Packet> undecodedPackets;
+  private final List<Packet> decodedPackets;
 
   private final class Packet {
     private final byte[] data;
@@ -29,20 +30,26 @@ public final class Decoder {
     
   }
 
-  
-  public Decoder(long seed, int nPackets)
-  {
+  public Decoder(long seed, int nPackets) {
     this.uniformRNG = new Random(seed);
     this.nPackets = nPackets;
-    this.receivedPackets = new ArrayList<Packet>();
+    this.undecodedPackets = new ArrayList<Packet>();
+    this.decodedPackets = new ArrayList<Packet>();
+  }
+
+  private int getNReceivedPackets() {
+    return this.undecodedPackets.size() + this.decodedPackets.size();
   }
 
   public byte[] receive(byte[] data, int[] neighbours)
   {
-    this.receivedPackets.add(new Packet(data, neighbours));
+    if(neighbours.length > 1)
+      this.undecodedPackets.add(new Packet(data, neighbours));
+    else
+      this.decodedPackets.add(new Packet(data, neighbours));
 
     /* No way we could encode anything */
-    if(this.receivedPackets.size() < this.nPackets) {
+    if(this.getNReceivedPackets() < this.nPackets) {
 
       return null;
     } else {
