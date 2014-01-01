@@ -1,151 +1,148 @@
 package com.k13n.lt_codes;
 
-import java.util.Random;
-import java.util.List;
-import java.util.BitSet;
-import java.util.ArrayList;
-import java.io.OutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
 public final class Decoder {
-  
-  private final Random uniformRNG;
-  private final int nPackets;
-  private final List<Packet> undecodedPackets;
-  private final Packet[] decodedPackets;
-  private int nReceivedPackets;
-  private int nDecodedPackets;
+  private final int nrPackets;
+  private final Queue<EncodedPacket> encodedPackets;
+  private final SourcePacket[] sourcePackets;
+  private int nrDecodedPackets;
 
-  private static final class Packet {
-    private final byte[] data;
-    private final int[] neighbours;
+  @SuppressWarnings("rawtypes")
+  private static class Packet<T extends Packet> {
+    private final BitSet data;
+    private List<T> neighbors;
 
-    public static final int[] NO_NEIGHBOURS = new int[0];
-
-    public Packet(byte[] data, int[] neighbours) {
-      this.data = data;
-      this.neighbours = neighbours;
+    public Packet(byte[] data) {
+      this.data = BitSet.valueOf(data);
+      neighbors = new ArrayList<>();
     }
 
-    public byte[] getData() {
-      return this.data;
+    public BitSet getData() {
+      return data;
     }
 
-    public int[] getNeighbours() {
-      return this.neighbours;
+    public List<T> getNeighbors() {
+      return neighbors;
     }
 
-    public boolean hasNeighbour(int packetId)
-    {
-      for(int i = 0; i < this.neighbours.length; i++)
-      {
-        if(this.neighbours[i] == packetId)
-        {
-          return true;
-        }
+    public void addNeighbor(T packet) {
+      neighbors.add(packet);
+    }
+
+    public void removeNeighbor(T packet) {
+      neighbors.remove(packet);
+    }
+
+    public void xor(Packet packet) {
+      this.data.xor(packet.getData());
+    }
+
+    public T getFirstNeighbor() {
+      return neighbors.get(0);
+    }
+
+  }
+
+  private static class EncodedPacket extends Packet<SourcePacket> {
+    public EncodedPacket(byte[] data) {
+      super(data);
+    }
+  }
+
+  private static class SourcePacket extends Packet<EncodedPacket> {
+    private boolean isDecoded;
+
+    public SourcePacket(int packetSize) {
+      super(new byte[packetSize]);
+      isDecoded = false;
+    }
+
+    public boolean isDecoded() {
+      return isDecoded;
+    }
+
+    public void flagAsDecoded() {
+      isDecoded = true;
+    }
+
+  }
+
+  public Decoder(int nrPackets, int packetSize) {
+    this.nrPackets = nrPackets;
+    encodedPackets = new PriorityQueue<>(nrPackets, new Comparator<EncodedPacket>() {
+      @Override public int compare(EncodedPacket p1, EncodedPacket p2) {
+        int nrNeighbors1 = p1.getNeighbors().size();
+        int nrNeighbors2 = p2.getNeighbors().size();
+        return Integer.compare(nrNeighbors1, nrNeighbors2);
       }
-      return false;
-    }
-    
+    });
+    sourcePackets = new SourcePacket[nrPackets];
+    for (int i = 0; i < nrPackets; i++)
+      sourcePackets[i] = new SourcePacket(packetSize);
   }
 
-  public Decoder(long seed, int nPackets) {
-    this.uniformRNG = new Random(seed);
-    this.nPackets = nPackets;
-    this.undecodedPackets = new ArrayList<Packet>();
-    this.decodedPackets = new Packet[nPackets];
-  }
-
-  private boolean packetIsDecodable(Packet packet)
-  {
-    int d = packet.getNeighbours().length;
-    for(int neighbourId: packet.getNeighbours())
-    {
-      if(this.decodedPackets[neighbourId] != null)
-        d--;
+  public boolean receive(byte[] data, int[] neighbors) {
+    EncodedPacket packet = new EncodedPacket(data);
+    for (int neighbor : neighbors) {
+      if (!sourcePackets[neighbor].isDecoded()) {
+        packet.addNeighbor(sourcePackets[neighbor]);
+        sourcePackets[neighbor].addNeighbor(packet);
+      }
     }
-    return d <= 1;
-  }
-
-  private int undecodedNeighbourId(Packet packet)
-  {
-    for(int neighbourId: packet.getNeighbours())
-    {
-      if(this.decodedPackets[neighbourId] == null)
-        return neighbourId;
+    if (packet.getNeighbors().size() > 0) {
+      encodedPackets.offer(packet);
+      decodingStep();
     }
-    return -1;
-  }
-
-  private Packet decodePacket(Packet packet) {
-    BitSet set = BitSet.valueOf(packet.getData());
-    for(int i = 0; i < packet.getNeighbours().length; i++)
-    {
-      Packet neighbour = decodedPackets[packet.getNeighbours()[i]];
-      if(neighbour != null)
-        set.xor(BitSet.valueOf(neighbour.getData()));
-    }
-    return new Packet(set.toByteArray(), Packet.NO_NEIGHBOURS);
+    System.out.println(nrDecodedPackets + " " + nrPackets + " " + encodedPackets.size());
+    return nrDecodedPackets == nrPackets;
   }
 
   private void decodingStep() {
-    Iterator<Packet> iter = this.undecodedPackets.iterator();
+    while (queueHasSingleNeighborPackets()) {
+      EncodedPacket encodedPacket = encodedPackets.poll();
+      SourcePacket sourcePacket = encodedPacket.getFirstNeighbor();
+      sourcePacket.xor(encodedPacket);
+      sourcePacket.flagAsDecoded();
+      nrDecodedPackets++;
 
-    while (iter.hasNext()) {
-      Packet packet = iter.next();
-      if(packetIsDecodable(packet))
-      {
-        int undecodedNeighbourId = undecodedNeighbourId(packet);
-        if(undecodedNeighbourId >= 0)
-        {
-          decodedPackets[undecodedNeighbourId] = decodePacket(packet);
-          nDecodedPackets++;
-        }
-        iter.remove();
+      Iterator<EncodedPacket> iterator = sourcePacket.getNeighbors().iterator();
+      while (iterator.hasNext()) {
+        EncodedPacket neighbor = iterator.next();
+        neighbor.xor(sourcePacket);
+        // remove each other as neighbors
+        neighbor.removeNeighbor(sourcePacket);
+        iterator.remove();
+        // re-insert encoded packet to update its position
+        if (neighbor.getNeighbors().size() > 0) {
+          encodedPackets.remove(neighbor);
+          encodedPackets.add(neighbor);
+        } else if (neighbor.getNeighbors().size() == 0)
+          encodedPackets.remove(neighbor);
       }
     }
   }
 
-  public void write(OutputStream stream) throws IOException {
-    System.out.println(nDecodedPackets);
-    System.out.println(nPackets);
-
-    for(Packet packet: decodedPackets)
-    {
-      byte[] data = packet.getData();
-      stream.write(data, 0, data.length);
-    }
+  private boolean queueHasSingleNeighborPackets() {
+//    if (!encodedPackets.isEmpty())
+//      System.out.println("foo: " + encodedPackets.peek().getNeighbors().size());
+    return !encodedPackets.isEmpty() && encodedPackets.peek().getNeighbors().size() == 1;
   }
 
-  public boolean receive(byte[] data, int[] neighbours)
-  {
-    if(nDecodedPackets >= nPackets)
+  public void write(OutputStream stream) throws IOException {
+    for(SourcePacket packet: sourcePackets)
     {
-      return true;
+      byte[] data = packet.getData().toByteArray();
+      stream.write(data, 0, data.length);
     }
-
-    if(neighbours.length > 1)
-      this.undecodedPackets.add(new Packet(data, neighbours));
-    else
-    {
-      this.decodedPackets[neighbours[0]] = new Packet(data, neighbours);
-    }
-
-    nReceivedPackets++;
-
-    /* No way we could encode anything */
-    if(nReceivedPackets > nPackets) {
-      /* we need a great deal more than k = this.nPackets,
-       * but for anything > k, we give it a try.
-       * Yes, this means that work is done for nothing
-       * FIXME: use exact lower bounds here
-       *
-       */
-      decodingStep();
-      System.out.println(nDecodedPackets);
-    }
-    return nDecodedPackets >= nPackets;
   }
 
 }

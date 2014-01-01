@@ -5,7 +5,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import java.io.*;
-import com.k13n.lt_codes.*;
 import java.net.URL;
 
 /**
@@ -52,8 +51,9 @@ public class AppTest
       s.readFully(data);
       s.close();
 
-      Encoder enc = new Encoder(data, 1000);
-      final Decoder dec = new Decoder(enc.getSeed(), enc.getNPackets());
+      int packetSize = 100;
+      Encoder enc = new Encoder(data, packetSize);
+      final Decoder dec = new Decoder(enc.getNPackets(), packetSize);
 
       enc.encode(new Encoder.Callback(){
         public boolean call(Encoder encoder, int[] neighbours, byte data[]) {
