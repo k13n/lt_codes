@@ -45,9 +45,9 @@ public class AppTest
       InputStream is = getClass().getResourceAsStream("/test.txt");
       URL url = this.getClass().getResource("/test.txt");
       assertNotNull(url);
-      File testWsdl = new File(url.getFile());
+      File file = new File(url.getFile());
 
-      byte[] data = new byte[is.available()];
+      byte[] data = new byte[(int)file.length()];
       DataInputStream s = new DataInputStream(is);
       s.readFully(data);
       s.close();

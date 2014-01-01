@@ -57,15 +57,15 @@ public final class Decoder {
     this.decodedPackets = new Packet[nPackets];
   }
 
-  private int nUndecodedNeighbours(Packet packet)
+  private boolean packetIsDecodable(Packet packet)
   {
-    int d = 0;
+    int d = packet.getNeighbours().length;
     for(int neighbourId: packet.getNeighbours())
     {
-      if(this.decodedPackets[neighbourId] == null)
-        d++;
+      if(this.decodedPackets[neighbourId] != null)
+        d--;
     }
-    return d;
+    return d <= 1;
   }
 
   private int undecodedNeighbourId(Packet packet)
@@ -94,10 +94,10 @@ public final class Decoder {
 
     while (iter.hasNext()) {
       Packet packet = iter.next();
-      if(nUndecodedNeighbours(packet) == 1)
+      if(packetIsDecodable(packet))
       {
         int undecodedNeighbourId = undecodedNeighbourId(packet);
-        if(decodedPackets[undecodedNeighbourId] == null)
+        if(undecodedNeighbourId >= 0)
         {
           decodedPackets[undecodedNeighbourId] = decodePacket(packet);
           nDecodedPackets++;
