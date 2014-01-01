@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 public final class Encoder {
 
   public interface Callback {
-    public boolean call(Encoder encoder, int d, byte data[]);
+    public boolean call(Encoder encoder, int[] neighbours, byte data[]);
   }
 
   private static final double DEFAULT_C = 0.3333;
@@ -52,9 +52,13 @@ public final class Encoder {
         int d = solitonRNG.next();
         BitSet xorSet = null;
 
+        int[] neighbours = new int[d];
+
         for(int i = 0; i < d; i++)
         {
-          int pos = uniformRNG.nextInt(this.nPackets) * this.packetSize;
+          int packetIndex = uniformRNG.nextInt(this.nPackets);
+          int pos = this.packetIndex * this.packetSize;
+          neighbours[i] = packetIndex;
           this.buffer.position(pos);
           BitSet bitSet = BitSet.valueOf(this.buffer).get(0, this.packetSize);
           if(xorSet == null)
@@ -63,7 +67,7 @@ public final class Encoder {
             xorSet.xor(bitSet);
         }
 
-        abort = callback.call(this, d, xorSet.toByteArray());
+        abort = callback.call(this, neighbours, xorSet.toByteArray());
 
 
       } catch(Exception e) {
