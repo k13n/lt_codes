@@ -39,8 +39,8 @@ public class App {
   }
 
   private Server setUpServer() {
-    int packetsToSend = 1000;
-    return new Server(file, channel, packetsToSend);
+    double packetOverhead = 1.2;
+    return new Server(file, channel, packetOverhead);
   }
 
   public void execute() {
