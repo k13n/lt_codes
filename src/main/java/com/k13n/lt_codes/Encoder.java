@@ -57,7 +57,7 @@ public final class Encoder {
         for(int i = 0; i < d; i++)
         {
           int packetIndex = uniformRNG.nextInt(this.nPackets);
-          int pos = this.packetIndex * this.packetSize;
+          int pos = packetIndex * this.packetSize;
           neighbours[i] = packetIndex;
           this.buffer.position(pos);
           BitSet bitSet = BitSet.valueOf(this.buffer).get(0, this.packetSize);
@@ -77,7 +77,7 @@ public final class Encoder {
 
 
     }
-      
+
 
   }
 }
