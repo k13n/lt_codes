@@ -2,7 +2,10 @@ package com.k13n.lt_codes;
 
 import java.util.Random;
 import java.util.List;
+import java.util.BitSet;
 import java.util.ArrayList;
+import java.io.OutputStream;
+import java.io.IOException;
 
 public final class Decoder {
   
@@ -10,11 +13,14 @@ public final class Decoder {
   private final int nPackets;
   private final List<Packet> undecodedPackets;
   private final Packet[] decodedPackets;
-  private int receivedPackets;
+  private int nReceivedPackets;
+  private int nDecodedPackets;
 
   private static final class Packet {
     private final byte[] data;
     private final int[] neighbours;
+
+    public static final int[] NO_NEIGHBOURS = new int[0];
 
     public Packet(byte[] data, int[] neighbours) {
       this.data = data;
@@ -72,7 +78,15 @@ public final class Decoder {
   }
 
   private Packet decodePacket(Packet packet) {
-    return null;
+    BitSet set = BitSet.valueOf(decodedPackets[packet.getNeighbours()[0]].getData());
+    for(int i = 1; i < packet.getNeighbours().length; i++)
+    {
+      Packet neighbour = decodedPackets[packet.getNeighbours()[i]];
+      if(neighbour != null)
+        set.xor(BitSet.valueOf(neighbour.getData()));
+    }
+    set.flip(0, set.cardinality());
+    return new Packet(set.toByteArray(), Packet.NO_NEIGHBOURS);
   }
 
   private void decodingStep() {
@@ -82,12 +96,26 @@ public final class Decoder {
       {
         int undecodedNeighbourId = undecodedNeighbourId(packet);
         decodedPackets[undecodedNeighbourId] = decodePacket(packet);
+        nDecodedPackets++;
       }
     }
   }
 
-  public byte[] receive(byte[] data, int[] neighbours)
+  private void write(OutputStream stream) throws IOException {
+    for(Packet packet: decodedPackets)
+    {
+      byte[] data = packet.getData();
+      stream.write(data, 0, data.length);
+    }
+  }
+
+  public boolean receive(byte[] data, int[] neighbours)
   {
+    if(nDecodedPackets >= nPackets)
+    {
+      return true;
+    }
+
     if(neighbours.length > 1)
       this.undecodedPackets.add(new Packet(data, neighbours));
     else
@@ -95,27 +123,19 @@ public final class Decoder {
       this.decodedPackets[neighbours[0]] = new Packet(data, neighbours);
     }
 
-    receivedPackets++;
+    nReceivedPackets++;
 
     /* No way we could encode anything */
-    if(receivedPackets < this.nPackets) {
-
-      return null;
-    } else {
+    if(nReceivedPackets > nPackets) {
       /* we need a great deal more than k = this.nPackets,
        * but for anything > k, we give it a try.
        * Yes, this means that work is done for nothing
        * FIXME: use exact lower bounds here
        *
        */
-
       decodingStep();
-
-      /* ... */
-
-      return null;
     }
-
+    return nDecodedPackets >= nPackets;
   }
 
 }
