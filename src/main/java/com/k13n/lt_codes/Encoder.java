@@ -12,6 +12,7 @@ public final class Encoder {
     public boolean call(Encoder encoder, int[] neighbours, byte data[]);
   }
 
+  private static final double DEFAULT_FAILURE_PROBABILITY = 0.01;
   private static final double DEFAULT_C = 0.3333;
 
   private final int packetSize;
@@ -21,8 +22,8 @@ public final class Encoder {
   private final ByteBuffer buffer;
   private final long seed;
 
-  public Encoder(byte[] data, int packetSize, double failureProbability) {
-    this(data, packetSize, failureProbability, DEFAULT_C);
+  public Encoder(byte[] data, int packetSize) {
+    this(data, packetSize, DEFAULT_FAILURE_PROBABILITY, DEFAULT_C);
   }
 
   public Encoder(byte[] data, int packetSize, double failureProbability, double c) {
@@ -77,7 +78,7 @@ public final class Encoder {
 
 
     }
-      
+
 
   }
 }

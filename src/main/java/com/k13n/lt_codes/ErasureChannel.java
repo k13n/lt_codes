@@ -1,21 +1,31 @@
 package com.k13n.lt_codes;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 public final class ErasureChannel {
+
+  public interface Callback {
+    public void call(ErasureChannel channel, byte[] data);
+  }
+
+  private final Callback callback;
   private final double erasureProbability;
+  private AtomicLong nrTransmissions;
 
-  public static final byte[] ERASED = new byte[0];
-
-  public ErasureChannel(double erasureProbability) {
+  public ErasureChannel(Callback callback, double erasureProbability) {
+    this.callback = callback;
     this.erasureProbability = erasureProbability;
+    nrTransmissions = new AtomicLong(0);
   }
 
-  public byte[] transmit(byte[] data)
-  {
-    if(Math.random() <= erasureProbability)
-    {
-      return ERASED;
-    }
-    else
-      return data;
+  public void transmit(byte[] data) {
+    nrTransmissions.incrementAndGet();
+    if (Math.random() > erasureProbability)
+      callback.call(this, data);
   }
+
+  public long getNrTransmissions() {
+    return nrTransmissions.get();
+  }
+
 }
