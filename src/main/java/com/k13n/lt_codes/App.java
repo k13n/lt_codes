@@ -44,7 +44,9 @@ public class App {
   }
 
   public void execute() {
+    client.startProcessing();
     server.startTransmission();
+    client.stopProcessing();
   }
 
   public static void main(String[] args) {
