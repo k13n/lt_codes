@@ -4,10 +4,16 @@ import java.io.File;
 
 public class App {
   private final File file;
+  private final ErasureChannel channel;
+  private Server server;
+  private Client client;
 
   public App(String[] args) {
     String filename = parseFilename(args);
     file = ensureFileExists(filename);
+    client = new Client();
+    channel = setUpErasureChannel();
+    server = setUpServer();
   }
 
   private String parseFilename(String[] args) {
@@ -23,8 +29,22 @@ public class App {
     return file;
   }
 
+  private ErasureChannel setUpErasureChannel() {
+    ErasureChannel.Callback channelCallback = new ErasureChannel.Callback() {
+      @Override public void call(ErasureChannel channel, byte[] data) {
+        client.receive(data);
+      }
+    };
+    return new ErasureChannel(channelCallback, 0.2);
+  }
+
+  private Server setUpServer() {
+    int packetsToSend = 1000;
+    return new Server(file, channel, packetsToSend);
+  }
+
   public void execute() {
-    // FIXME
+    server.startTransmission();
   }
 
   public static void main(String[] args) {
