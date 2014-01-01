@@ -52,7 +52,7 @@ public class AppTest
       s.readFully(data);
       s.close();
 
-      Encoder enc = new Encoder(data, 1000);
+      Encoder enc = new Encoder(data, 512);
       final Decoder dec = new Decoder(enc.getSeed(), enc.getNPackets());
 
       enc.encode(new Encoder.Callback(){

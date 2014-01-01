@@ -6,6 +6,7 @@ import java.util.BitSet;
 import java.util.ArrayList;
 import java.io.OutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 
 public final class Decoder {
@@ -102,14 +103,15 @@ public final class Decoder {
           decodedPackets[undecodedNeighbourId] = decodePacket(packet);
           nDecodedPackets++;
         }
+        else
+        {
+        }
         iter.remove();
       }
     }
   }
 
   public void write(OutputStream stream) throws IOException {
-    System.out.println(nDecodedPackets);
-    System.out.println(nPackets);
 
     for(Packet packet: decodedPackets)
     {
@@ -126,15 +128,21 @@ public final class Decoder {
     }
 
     if(neighbours.length > 1)
-      this.undecodedPackets.add(new Packet(data, neighbours));
+    {
+       this.undecodedPackets.add(new Packet(data, neighbours));
+    }
     else
     {
-      this.decodedPackets[neighbours[0]] = new Packet(data, neighbours);
+
+      if(decodedPackets[neighbours[0]] == null)
+      {
+        this.decodedPackets[neighbours[0]] = new Packet(data, neighbours);
+        nDecodedPackets++;
+      }
     }
 
     nReceivedPackets++;
 
-    /* No way we could encode anything */
     if(nReceivedPackets > nPackets) {
       /* we need a great deal more than k = this.nPackets,
        * but for anything > k, we give it a try.
@@ -143,7 +151,6 @@ public final class Decoder {
        *
        */
       decodingStep();
-      System.out.println(nDecodedPackets);
     }
     return nDecodedPackets >= nPackets;
   }
