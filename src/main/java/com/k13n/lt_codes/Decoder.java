@@ -27,6 +27,18 @@ public final class Decoder {
     public int[] getNeighbours() {
       return this.neighbours;
     }
+
+    public boolean hasNeighbour(int packetId)
+    {
+      for(int i = 0; i < this.neighbours.length; i++)
+      {
+        if(this.neighbours[i] == packetId)
+        {
+          return true;
+        }
+      }
+      return false;
+    }
     
   }
 
