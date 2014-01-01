@@ -12,13 +12,16 @@ public class Server {
   private final File file;
   private final ErasureChannel channel;
   private final Encoder encoder;
-  private final int packetsToDeliver;
+  private final int packetsToTransmit;
 
-  public Server(File file, ErasureChannel channel, int packetsToDeliver) {
+  public Server(File file, ErasureChannel channel, double packetOverhead) {
+    if (packetOverhead < 1)
+      throw new IllegalArgumentException("The packet overhead must be >= 1");
+
     this.file = file;
     this.channel = channel;
     this.encoder = setUpEncoder();
-    this.packetsToDeliver = packetsToDeliver;
+    this.packetsToTransmit = (int) (encoder.getNPackets() * packetOverhead);
   }
 
   private Encoder setUpEncoder() {
@@ -49,7 +52,7 @@ public class Server {
       @Override
       public boolean call(Encoder encoder, int[] neighbours, byte[] data) {
         channel.transmit(data);
-        return channel.getNrTransmissions() >= packetsToDeliver;
+        return channel.getNrTransmissions() >= packetsToTransmit;
       }
     });
   }
