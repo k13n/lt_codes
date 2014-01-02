@@ -12,7 +12,6 @@ import java.util.Queue;
 
 public final class IncrementalDecoder implements Decoder {
   private final int nrPackets;
-  private final int packetSize;
   private final Queue<EncodedPacket> encodedPackets;
   private final SourcePacket[] sourcePackets;
   private int nrDecodedPackets;
@@ -61,10 +60,11 @@ public final class IncrementalDecoder implements Decoder {
   }
 
   private static class SourcePacket extends Packet<EncodedPacket> {
+    private static final byte[] EMPTY_ARRAY = new byte[0];
     private boolean isDecoded;
 
-    public SourcePacket(int packetSize) {
-      super(new byte[packetSize]);
+    public SourcePacket() {
+      super(EMPTY_ARRAY);
       isDecoded = false;
     }
 
@@ -78,9 +78,8 @@ public final class IncrementalDecoder implements Decoder {
 
   }
 
-  public IncrementalDecoder(int nrPackets, int packetSize) {
+  public IncrementalDecoder(int nrPackets) {
     this.nrPackets = nrPackets;
-    this.packetSize = packetSize;
     encodedPackets = setUpQueue();
     sourcePackets = setUpSourcePakckets();
   }
@@ -98,7 +97,7 @@ public final class IncrementalDecoder implements Decoder {
   private SourcePacket[] setUpSourcePakckets() {
     SourcePacket[] sourcePackets = new SourcePacket[nrPackets];
     for (int i = 0; i < nrPackets; i++)
-      sourcePackets[i] = new SourcePacket(packetSize);
+      sourcePackets[i] = new SourcePacket();
     return sourcePackets;
   }
 
