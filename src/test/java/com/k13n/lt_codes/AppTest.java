@@ -54,7 +54,7 @@ public class AppTest
 
       int packetSize = 100;
       Encoder enc = new Encoder(data, packetSize);
-      final Decoder dec = new Decoder(enc.getSeed(), enc.getNPackets());
+      final Decoder dec = new DefaultDecoder(enc.getSeed(), enc.getNPackets());
 
       enc.encode(new Encoder.Callback(){
         public boolean call(Encoder encoder, TransmissonPacket packet) {

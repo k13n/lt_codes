@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-public final class IncrementalDecoder {
+public final class IncrementalDecoder implements Decoder {
   private final int nrPackets;
   private final int packetSize;
   private final Queue<EncodedPacket> encodedPackets;
@@ -102,6 +102,7 @@ public final class IncrementalDecoder {
     return sourcePackets;
   }
 
+  @Override
   public boolean receive(TransmissonPacket packet) {
     EncodedPacket encodedPacket = createPacketFromInput(packet);
     if (encodedPacket.getNeighbors().size() > 0) {
@@ -159,6 +160,7 @@ public final class IncrementalDecoder {
         encodedPackets.peek().getNeighbors().size() == 1;
   }
 
+  @Override
   public void write(OutputStream stream) throws IOException {
     for (SourcePacket packet: sourcePackets) {
       byte[] data = packet.getData().toByteArray();
