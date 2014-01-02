@@ -12,7 +12,7 @@ public final class Encoder {
   }
 
   private static final double DEFAULT_FAILURE_PROBABILITY = 0.01;
-  private static final double DEFAULT_C = 0.3333;
+  private static final int DEFAULT_SPIKE = 50;
 
   private final int packetSize;
   private final int nPackets;
@@ -22,15 +22,15 @@ public final class Encoder {
   private final long seed;
 
   public Encoder(byte[] data, int packetSize) {
-    this(data, packetSize, DEFAULT_FAILURE_PROBABILITY, DEFAULT_C);
+    this(data, packetSize, DEFAULT_FAILURE_PROBABILITY, DEFAULT_SPIKE);
   }
 
-  public Encoder(byte[] data, int packetSize, double failureProbability, double c) {
+  public Encoder(byte[] data, int packetSize, double failureProbability, int spike) {
     this.packetSize = packetSize;
     this.seed = (long)(Math.random() * 1024 * 5);
     this.nPackets = (int)Math.ceil(data.length / (double)packetSize);
     this.uniformRNG = new Random(this.seed);
-    this.solitonRNG = new RobustSolitonGenerator(nPackets, c, failureProbability);
+    this.solitonRNG = new RobustSolitonGenerator(nPackets, spike, failureProbability);
 
     this.buffer = ByteBuffer.wrap(Arrays.copyOf(data, nPackets * packetSize),
                                   0, nPackets * packetSize);
