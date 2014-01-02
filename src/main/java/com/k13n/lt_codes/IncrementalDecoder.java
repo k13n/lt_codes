@@ -102,8 +102,8 @@ public final class IncrementalDecoder {
     return sourcePackets;
   }
 
-  public boolean receive(byte[] data, int[] neighbors) {
-    EncodedPacket encodedPacket = createPacketFromInput(data, neighbors);
+  public boolean receive(TransmissonPacket packet) {
+    EncodedPacket encodedPacket = createPacketFromInput(packet);
     if (encodedPacket.getNeighbors().size() > 0) {
       encodedPackets.offer(encodedPacket);
       decodingStep();
@@ -112,17 +112,17 @@ public final class IncrementalDecoder {
     return nrDecodedPackets == nrPackets;
   }
 
-  private EncodedPacket createPacketFromInput(byte[] data, int[] neighbors) {
-    EncodedPacket packet = new EncodedPacket(data);
-    for (int neighbor : neighbors) {
+  private EncodedPacket createPacketFromInput(TransmissonPacket packet) {
+    EncodedPacket encodedPacket = new EncodedPacket(packet.getData());
+    for (int neighbor : packet.getNeighbors()) {
       if (!sourcePackets[neighbor].isDecoded()) {
-        packet.addNeighbor(sourcePackets[neighbor]);
-        sourcePackets[neighbor].addNeighbor(packet);
+        encodedPacket.addNeighbor(sourcePackets[neighbor]);
+        sourcePackets[neighbor].addNeighbor(encodedPacket);
       } else {
-        packet.xor(sourcePackets[neighbor]);
+        encodedPacket.xor(sourcePackets[neighbor]);
       }
     }
-    return packet;
+    return encodedPacket;
   }
 
   private void decodingStep() {

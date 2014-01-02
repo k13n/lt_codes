@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 public final class Encoder {
 
   public interface Callback {
-    public boolean call(Encoder encoder, int[] neighbours, byte data[]);
+    public boolean call(Encoder encoder, TransmissonPacket packet);
   }
 
   private static final double DEFAULT_FAILURE_PROBABILITY = 0.01;
@@ -67,7 +67,9 @@ public final class Encoder {
             xorSet.xor(bitSet);
         }
 
-        abort = callback.call(this, neighbours, xorSet.toByteArray());
+        byte[] packetData = xorSet.toByteArray();
+        TransmissonPacket packet = new TransmissonPacket(neighbours, packetData);
+        abort = callback.call(this, packet);
 
 
       } catch(Exception e) {

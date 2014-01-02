@@ -6,11 +6,10 @@ import java.util.BitSet;
 import java.util.ArrayList;
 import java.io.OutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Iterator;
 
 public final class Decoder {
-  
+
   private final Random uniformRNG;
   private final int nPackets;
   private final List<Packet> undecodedPackets;
@@ -48,7 +47,7 @@ public final class Decoder {
       }
       return false;
     }
-    
+
   }
 
   public Decoder(long seed, int nPackets) {
@@ -120,8 +119,10 @@ public final class Decoder {
     }
   }
 
-  public boolean receive(byte[] data, int[] neighbours)
+  public boolean receive(TransmissonPacket packet)
   {
+    byte[] data = packet.getData();
+    int[] neighbours = packet.getNeighbors();
     if(nDecodedPackets >= nPackets)
     {
       return true;

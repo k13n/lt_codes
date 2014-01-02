@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public final class ErasureChannel {
 
   public interface Callback {
-    public void call(ErasureChannel channel, byte[] data);
+    public void call(ErasureChannel channel, TransmissonPacket packet);
   }
 
   private final Callback callback;
@@ -18,10 +18,10 @@ public final class ErasureChannel {
     nrTransmissions = new AtomicLong(0);
   }
 
-  public void transmit(byte[] data) {
+  public void transmit(TransmissonPacket packet) {
     nrTransmissions.incrementAndGet();
     if (Math.random() > erasureProbability)
-      callback.call(this, data);
+      callback.call(this, packet);
   }
 
   public long getNrTransmissions() {

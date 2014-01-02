@@ -57,8 +57,8 @@ public class AppTest
       final Decoder dec = new Decoder(enc.getSeed(), enc.getNPackets());
 
       enc.encode(new Encoder.Callback(){
-        public boolean call(Encoder encoder, int[] neighbours, byte data[]) {
-          return dec.receive(data, neighbours);
+        public boolean call(Encoder encoder, TransmissonPacket packet) {
+          return dec.receive(packet);
         }
       });
 

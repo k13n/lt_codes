@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Client {
   private final Decoder decoder;
-  private final Queue<byte[]> queue;
+  private final Queue<TransmissonPacket> queue;
   private Thread decodingThread;
 
   public Client() {
@@ -24,7 +24,7 @@ public class Client {
         while (!isInterrupted()) {
           if (!queue.isEmpty()) {
             // FIXME change the neighbor array
-            decoder.receive(queue.poll(), null);
+            decoder.receive(queue.poll());
           } else {
             sleepMillis(100);
           }
@@ -38,8 +38,8 @@ public class Client {
     decodingThread.interrupt();
   }
 
-  public void receive(byte[] data) {
-    queue.offer(data);
+  public void receive(TransmissonPacket packet) {
+    queue.offer(packet);
   }
 
   private static void sleepMillis(int millis) {

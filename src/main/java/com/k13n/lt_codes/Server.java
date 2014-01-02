@@ -50,8 +50,8 @@ public class Server {
   public void startTransmission() {
     encoder.encode(new Callback() {
       @Override
-      public boolean call(Encoder encoder, int[] neighbours, byte[] data) {
-        channel.transmit(data);
+      public boolean call(Encoder encoder, TransmissonPacket packet) {
+        channel.transmit(packet);
         return channel.getNrTransmissions() >= packetsToTransmit;
       }
     });
