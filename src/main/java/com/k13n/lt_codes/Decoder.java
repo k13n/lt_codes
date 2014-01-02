@@ -7,4 +7,5 @@ public interface Decoder {
 
   public boolean receive(TransmissonPacket packet);
   public void write(OutputStream stream) throws IOException;
+  public boolean isDecodingFinished();
 }

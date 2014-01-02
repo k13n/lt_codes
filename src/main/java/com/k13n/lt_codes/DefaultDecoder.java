@@ -155,6 +155,11 @@ public final class DefaultDecoder implements Decoder {
        */
       decodingStep();
     }
+    return isDecodingFinished();
+  }
+
+  @Override
+  public boolean isDecodingFinished() {
     return nDecodedPackets >= nPackets;
   }
 

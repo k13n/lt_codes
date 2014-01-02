@@ -1,56 +1,17 @@
 package com.k13n.lt_codes;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
 import java.io.*;
 import java.net.URL;
 
-/**
- * Unit test for simple App.
- */
-public class AppTest
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
-    }
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
-    }
+public class AppTest {
 
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp() throws Exception
-    {
-        assertWorksWithPerfectChannel();
-        assertTrue( true );
-    }
-
-    private void assertWorksWithPerfectChannel() throws Exception {
+    @Test
+    public void assertWorksWithPerfectChannel() throws Exception {
       String filename = "test.txt";
-      InputStream is = getClass().getResourceAsStream("/" + filename);
-      URL url = this.getClass().getResource("/" + filename);
-      assertNotNull(url);
-      File file = new File(url.getFile());
-
-      byte[] data = new byte[(int)file.length()];
-      DataInputStream s = new DataInputStream(is);
-      s.readFully(data);
-      s.close();
+      byte[] data = readFile(filename);
 
       int packetSize = 100;
       Encoder enc = new Encoder(data, packetSize);
@@ -63,7 +24,49 @@ public class AppTest
       });
 
       dec.write(new FileOutputStream("/tmp/" + filename + ".out"));
-
-      //assertFilesEqual("text.txt", "text.txt.out")
     }
+
+    @Test
+    public void assertWorksWithLossyChannel() throws Exception {
+      String filename = "test.txt";
+      byte[] data = readFile(filename);
+
+      int packetSize = 100;
+      Encoder enc = new Encoder(data, packetSize);
+      final Decoder dec = new DefaultDecoder(enc.getSeed(), enc.getNPackets());
+
+      final ErasureChannel channel = new ErasureChannel(new ErasureChannel.Callback() {
+        @Override public void call(ErasureChannel channel, TransmissonPacket packet) {
+          dec.receive(packet);
+        }
+      }, 0.2);
+      enc.encode(new Encoder.Callback(){
+        public boolean call(Encoder encoder, TransmissonPacket packet) {
+          channel.transmit(packet);
+          return dec.isDecodingFinished();
+        }
+      });
+
+      dec.write(new FileOutputStream("/tmp/" + filename + ".out"));
+    }
+
+    private byte[] readFile(String filename) {
+      filename = "/" + filename;
+      byte[] data = null;
+      try {
+        URL url = this.getClass().getResource(filename);
+        InputStream is = getClass().getResourceAsStream(filename);
+        assertNotNull(url);
+        File file = new File(url.getFile());
+
+        data = new byte[(int)file.length()];
+        DataInputStream s = new DataInputStream(is);
+        s.readFully(data);
+        s.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      return data;
+    }
+
 }

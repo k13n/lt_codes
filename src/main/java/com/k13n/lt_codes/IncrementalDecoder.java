@@ -110,7 +110,7 @@ public final class IncrementalDecoder implements Decoder {
       decodingStep();
     }
     packetsProcessed++;
-    return nrDecodedPackets == nrPackets;
+    return isDecodingFinished();
   }
 
   private EncodedPacket createPacketFromInput(TransmissonPacket packet) {
@@ -170,6 +170,11 @@ public final class IncrementalDecoder implements Decoder {
 
   public int getNrPacketsProcessed() {
     return packetsProcessed;
+  }
+
+  @Override
+  public boolean isDecodingFinished() {
+    return nrDecodedPackets == nrPackets;
   }
 
 }
