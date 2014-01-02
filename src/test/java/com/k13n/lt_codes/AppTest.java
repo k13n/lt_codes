@@ -7,9 +7,9 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class AppTest {
-  private static final String FILENAME = "test.txt";
+  private static final String FILENAME = "firework.jpg";
   private static final String OUTFILE = "/tmp/" + FILENAME + ".out";
-  private static final int PACKET_SIZE = 100;
+  private static final int PACKET_SIZE = 512;
 
   @Test
   public void itWorksWithPerfectChannel() throws Exception {
@@ -22,6 +22,10 @@ public class AppTest {
         return dec.receive(packet);
       }
     });
+
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    dec.write(bos);
+    assertArrayEquals(data, bos.toByteArray());
 
     dec.write(new FileOutputStream(OUTFILE));
   }
@@ -45,6 +49,10 @@ public class AppTest {
         return dec.isDecodingFinished();
       }
     });
+
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    dec.write(bos);
+    assertArrayEquals(data, bos.toByteArray());
 
     dec.write(new FileOutputStream(OUTFILE));
   }
