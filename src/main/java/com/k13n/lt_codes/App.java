@@ -3,6 +3,8 @@ package com.k13n.lt_codes;
 import java.io.File;
 
 public class App {
+  private static final double DEFAULT_PACKET_OVERHEAD = 1.25;
+
   private final File file;
   private final ErasureChannel channel;
   private Server server;
@@ -13,7 +15,7 @@ public class App {
     file = ensureFileExists(filename);
     client = new Client();
     channel = setUpErasureChannel();
-    server = setUpServer();
+    server = new Server(file, channel, DEFAULT_PACKET_OVERHEAD);
   }
 
   private String parseFilename(String[] args) {
@@ -35,18 +37,18 @@ public class App {
         client.receive(packet);
       }
     };
-    return new ErasureChannel(channelCallback, 0.2);
-  }
-
-  private Server setUpServer() {
-    double packetOverhead = 1.2;
-    return new Server(file, channel, packetOverhead);
+    return new ErasureChannel(channelCallback, 0.0);
   }
 
   public void execute() {
     client.startProcessing();
     server.startTransmission();
     client.stopProcessing();
+
+    if (client.transferSucceeded())
+      System.out.println("file transfer succeeded");
+    else
+      System.out.println("file transfer did not complete");
   }
 
   public static void main(String[] args) {

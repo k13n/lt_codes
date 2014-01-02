@@ -14,40 +14,64 @@ public class Client {
   }
 
   private Decoder setUpDecoder() {
-    // FIXME
-    return null;
+    return new IncrementalDecoder(Server.DEFAULT_PACKET_SIZE);
   }
 
   public synchronized void startProcessing() {
-    decodingThread = new Thread() {
-      @Override public void run() {
-        while (!isInterrupted()) {
-          if (!queue.isEmpty()) {
-            // FIXME change the neighbor array
-            decoder.receive(queue.poll());
-          } else {
-            sleepMillis(100);
-          }
-        }
-      }
-    };
+    decodingThread = new DecoderThread();
     decodingThread.start();
   }
 
   public synchronized void stopProcessing() {
-    decodingThread.interrupt();
+    while (!queue.isEmpty())
+      sleepMillis(100);
+    shutDownDecodingThread();
   }
 
   public void receive(TransmissonPacket packet) {
     queue.offer(packet);
   }
 
-  private static void sleepMillis(int millis) {
+  public boolean transferSucceeded() {
+    return decoder.isDecodingFinished();
+  }
+
+  private void shutDownDecodingThread() {
+    try {
+      decodingThread.interrupt();
+      decodingThread.join();
+    } catch (InterruptedException e) { }
+  }
+
+  private void sleepMillis(int millis) {
     try {
       Thread.sleep(millis);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+    } catch (InterruptedException e) { }
+  }
+
+  private final class DecoderThread extends Thread {
+
+    @Override
+    public void run() {
+      while (!isInterrupted())
+        processNextPacketOrWait();
     }
+
+    private void processNextPacketOrWait() {
+      if (!queue.isEmpty())
+        decoder.receive(queue.poll());
+      else
+        sleepMillis(100);
+    }
+
+    private void sleepMillis(int millis) {
+      try {
+        Thread.sleep(millis);
+      } catch (InterruptedException e) {
+        this.interrupt();
+      }
+    }
+
   }
 
 }

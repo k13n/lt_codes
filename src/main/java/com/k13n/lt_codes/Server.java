@@ -9,6 +9,7 @@ import java.io.IOException;
 import com.k13n.lt_codes.Encoder.Callback;
 
 public class Server {
+  public static final int DEFAULT_PACKET_SIZE = 1024;
   private final File file;
   private final ErasureChannel channel;
   private final Encoder encoder;
@@ -26,8 +27,7 @@ public class Server {
 
   private Encoder setUpEncoder() {
     byte[] fileData = readFile();
-    final int packetSize = 1024;
-    return new Encoder(fileData, packetSize);
+    return new Encoder(fileData, DEFAULT_PACKET_SIZE);
   }
 
   private byte[] readFile() {
