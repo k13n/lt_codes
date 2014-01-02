@@ -7,14 +7,14 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class AppTest {
+  private static final String FILENAME = "test.txt";
+  private static final String OUTFILE = "/tmp/" + FILENAME + ".out";
+  private static final int PACKET_SIZE = 100;
 
   @Test
-  public void assertWorksWithPerfectChannel() throws Exception {
-    String filename = "test.txt";
-    byte[] data = readFile(filename);
-
-    int packetSize = 100;
-    Encoder enc = new Encoder(data, packetSize);
+  public void itWorksWithPerfectChannel() throws Exception {
+    byte[] data = readFile(FILENAME);
+    Encoder enc = new Encoder(data, PACKET_SIZE);
     final Decoder dec = new DefaultDecoder(enc.getSeed(), enc.getNPackets());
 
     enc.encode(new Encoder.Callback() {
@@ -23,25 +23,22 @@ public class AppTest {
       }
     });
 
-    dec.write(new FileOutputStream("/tmp/" + filename + ".out"));
+    dec.write(new FileOutputStream(OUTFILE));
   }
 
   @Test
-  public void assertWorksWithLossyChannel() throws Exception {
-    String filename = "test.txt";
-    byte[] data = readFile(filename);
-
-    int packetSize = 100;
-    Encoder enc = new Encoder(data, packetSize);
+  public void itWorksWithLossyChannel() throws Exception {
+    byte[] data = readFile(FILENAME);
+    Encoder enc = new Encoder(data, PACKET_SIZE);
     final Decoder dec = new DefaultDecoder(enc.getSeed(), enc.getNPackets());
 
     final ErasureChannel channel = new ErasureChannel(
-        new ErasureChannel.Callback() {
-          @Override
-          public void call(ErasureChannel channel, TransmissonPacket packet) {
-            dec.receive(packet);
-          }
-        }, 0.3);
+      new ErasureChannel.Callback() {
+        @Override
+        public void call(ErasureChannel channel, TransmissonPacket packet) {
+          dec.receive(packet);
+        }
+      }, 0.3);
     enc.encode(new Encoder.Callback() {
       public boolean call(Encoder encoder, TransmissonPacket packet) {
         channel.transmit(packet);
@@ -49,7 +46,7 @@ public class AppTest {
       }
     });
 
-    dec.write(new FileOutputStream("/tmp/" + filename + ".out"));
+    dec.write(new FileOutputStream(OUTFILE));
   }
 
   private byte[] readFile(String filename) {
