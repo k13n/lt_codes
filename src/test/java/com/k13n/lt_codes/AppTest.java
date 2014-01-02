@@ -16,7 +16,7 @@ public class AppTest {
     byte[] data = readFile(FILENAME);
     Encoder enc = new Encoder(data, PACKET_SIZE);
 //    final Decoder dec = new DefaultDecoder(enc.getSeed(), enc.getNPackets());
-    final Decoder dec = new IncrementalDecoder(enc.getNPackets(), PACKET_SIZE);
+    final Decoder dec = new IncrementalDecoder(PACKET_SIZE);
 
     enc.encode(new Encoder.Callback() {
       public boolean call(Encoder encoder, TransmissonPacket packet) {
@@ -36,7 +36,7 @@ public class AppTest {
     byte[] data = readFile(FILENAME);
     Encoder enc = new Encoder(data, PACKET_SIZE);
 //    final Decoder dec = new DefaultDecoder(enc.getSeed(), enc.getNPackets());
-    final Decoder dec = new IncrementalDecoder(enc.getNPackets(), PACKET_SIZE);
+    final Decoder dec = new IncrementalDecoder(PACKET_SIZE);
 
     final ErasureChannel channel = new ErasureChannel(
       new ErasureChannel.Callback() {

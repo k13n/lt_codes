@@ -12,12 +12,13 @@ import java.util.Queue;
 
 public final class IncrementalDecoder implements Decoder {
   private final int packetSize;
-  private final int nrPackets;
   private final Queue<EncodedPacket> encodedPackets;
-  private final SourcePacket[] sourcePackets;
+  private SourcePacket[] sourcePackets;
+  private int nrPackets;
   private int nrDecodedPackets;
   private int packetsProcessed;
   private long filesize;
+  private boolean isFirstPacket;
 
   @SuppressWarnings("rawtypes")
   private static class Packet<T extends Packet> {
@@ -80,15 +81,15 @@ public final class IncrementalDecoder implements Decoder {
 
   }
 
-  public IncrementalDecoder(int nrPackets, int packetSize) {
+  public IncrementalDecoder(int packetSize) {
     this.packetSize = packetSize;
-    this.nrPackets = nrPackets;
+    isFirstPacket = true;
     encodedPackets = setUpQueue();
-    sourcePackets = setUpSourcePakckets();
   }
 
   private PriorityQueue<EncodedPacket> setUpQueue() {
-    return new PriorityQueue<>(nrPackets, new Comparator<EncodedPacket>() {
+    int initialCapacity = 1000;
+    return new PriorityQueue<>(initialCapacity, new Comparator<EncodedPacket>() {
       @Override public int compare(EncodedPacket p1, EncodedPacket p2) {
         int nrNeighbors1 = p1.getNeighbors().size();
         int nrNeighbors2 = p2.getNeighbors().size();
@@ -106,17 +107,20 @@ public final class IncrementalDecoder implements Decoder {
 
   @Override
   public boolean receive(TransmissonPacket packet) {
+    if (isFirstPacket)
+      handleFirstPacket(packet);
+
     EncodedPacket encodedPacket = createPacketFromInput(packet);
     if (encodedPacket.getNeighbors().size() > 0) {
       encodedPackets.offer(encodedPacket);
       decodingStep();
     }
     packetsProcessed++;
+
     return isDecodingFinished();
   }
 
   private EncodedPacket createPacketFromInput(TransmissonPacket packet) {
-    filesize = packet.getFilesize();
     EncodedPacket encodedPacket = new EncodedPacket(packet.getData());
     for (int neighbor : packet.getNeighbors()) {
       if (!sourcePackets[neighbor].isDecoded()) {
@@ -127,6 +131,13 @@ public final class IncrementalDecoder implements Decoder {
       }
     }
     return encodedPacket;
+  }
+
+  private void handleFirstPacket(TransmissonPacket packet) {
+    filesize = packet.getFilesize();
+    nrPackets = (int) Math.ceil(filesize / (double)packetSize);
+    sourcePackets = setUpSourcePakckets();
+    isFirstPacket = false;
   }
 
   private void decodingStep() {
