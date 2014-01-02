@@ -59,6 +59,7 @@ public final class Encoder {
           int packetIndex = uniformRNG.nextInt(this.nPackets);
           int pos = packetIndex * this.packetSize;
           neighbours[i] = packetIndex;
+          this.buffer.limit(pos + this.packetSize);
           this.buffer.position(pos);
           BitSet bitSet = BitSet.valueOf(this.buffer).get(0, this.packetSize * 8);
           if(xorSet == null)
