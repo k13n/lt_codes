@@ -165,18 +165,23 @@ public final class IncrementalDecoder implements Decoder {
 
   @Override
   public void write(OutputStream stream) throws IOException {
-    int lastPacketSize = (int) (filesize - (nrPackets-1) * packetSize);
-    byte[] data;
     for (int i = 0; i < sourcePackets.length; i++) {
       SourcePacket packet = sourcePackets[i];
-      if (i == sourcePackets.length - 1)
-        data = new byte[lastPacketSize];
-      else
-        data = new byte[packetSize];
+      byte[] data = createEmptyBuffer(packet, i == sourcePackets.length - 1);
       byte[] packetData = packet.getData().toByteArray();
       System.arraycopy(packetData, 0, data, 0, packetData.length);
       stream.write(data);
     }
+    stream.flush();
+  }
+
+  private byte[] createEmptyBuffer(SourcePacket packet, boolean isLastPacket) {
+    int size = isLastPacket ? lastPacketSize() : packetSize;
+    return new byte[size];
+  }
+
+  private int lastPacketSize() {
+    return (int) (filesize - (nrPackets-1) * packetSize);
   }
 
   public int getNrPacketsProcessed() {
