@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-public final class Decoder {
+public final class IncrementalDecoder {
   private final int nrPackets;
   private final int packetSize;
   private final Queue<EncodedPacket> encodedPackets;
@@ -78,7 +78,7 @@ public final class Decoder {
 
   }
 
-  public Decoder(int nrPackets, int packetSize) {
+  public IncrementalDecoder(int nrPackets, int packetSize) {
     this.nrPackets = nrPackets;
     this.packetSize = packetSize;
     encodedPackets = setUpQueue();
