@@ -11,11 +11,13 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 
 public final class IncrementalDecoder implements Decoder {
+  private final int packetSize;
   private final int nrPackets;
   private final Queue<EncodedPacket> encodedPackets;
   private final SourcePacket[] sourcePackets;
   private int nrDecodedPackets;
   private int packetsProcessed;
+  private long filesize;
 
   @SuppressWarnings("rawtypes")
   private static class Packet<T extends Packet> {
@@ -78,7 +80,8 @@ public final class IncrementalDecoder implements Decoder {
 
   }
 
-  public IncrementalDecoder(int nrPackets) {
+  public IncrementalDecoder(int nrPackets, int packetSize) {
+    this.packetSize = packetSize;
     this.nrPackets = nrPackets;
     encodedPackets = setUpQueue();
     sourcePackets = setUpSourcePakckets();
@@ -113,6 +116,7 @@ public final class IncrementalDecoder implements Decoder {
   }
 
   private EncodedPacket createPacketFromInput(TransmissonPacket packet) {
+    filesize = packet.getFilesize();
     EncodedPacket encodedPacket = new EncodedPacket(packet.getData());
     for (int neighbor : packet.getNeighbors()) {
       if (!sourcePackets[neighbor].isDecoded()) {
@@ -161,8 +165,16 @@ public final class IncrementalDecoder implements Decoder {
 
   @Override
   public void write(OutputStream stream) throws IOException {
-    for (SourcePacket packet: sourcePackets) {
-      byte[] data = packet.getData().toByteArray();
+    int lastPacketSize = (int) (filesize - (nrPackets-1) * packetSize);
+    byte[] data;
+    for (int i = 0; i < sourcePackets.length; i++) {
+      SourcePacket packet = sourcePackets[i];
+      if (i == sourcePackets.length - 1)
+        data = new byte[lastPacketSize];
+      else
+        data = new byte[packetSize];
+      byte[] packetData = packet.getData().toByteArray();
+      System.arraycopy(packetData, 0, data, 0, packetData.length);
       stream.write(data);
     }
   }

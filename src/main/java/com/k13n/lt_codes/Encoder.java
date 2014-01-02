@@ -14,6 +14,7 @@ public final class Encoder {
   private static final double DEFAULT_FAILURE_PROBABILITY = 0.01;
   private static final int DEFAULT_SPIKE = 50;
 
+  private final int filesize;
   private final int packetSize;
   private final int nPackets;
   private final Random uniformRNG;
@@ -26,6 +27,7 @@ public final class Encoder {
   }
 
   public Encoder(byte[] data, int packetSize, double failureProbability, int spike) {
+    this.filesize = data.length;
     this.packetSize = packetSize;
     this.seed = (long)(Math.random() * 1024 * 5);
     this.nPackets = (int)Math.ceil(data.length / (double)packetSize);
@@ -69,7 +71,7 @@ public final class Encoder {
         }
 
         byte[] packetData = xorSet.toByteArray();
-        TransmissonPacket packet = new TransmissonPacket(neighbours, packetData);
+        TransmissonPacket packet = new TransmissonPacket(filesize, neighbours, packetData);
         abort = callback.call(this, packet);
 
 
