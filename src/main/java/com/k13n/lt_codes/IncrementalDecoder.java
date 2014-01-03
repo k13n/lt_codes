@@ -109,6 +109,8 @@ public final class IncrementalDecoder implements Decoder {
   public boolean receive(TransmissonPacket packet) {
     if (isFirstPacket)
       handleFirstPacket(packet);
+    if (isDecodingFinished())
+      return true;
 
     EncodedPacket encodedPacket = createPacketFromInput(packet);
     if (encodedPacket.getNeighbors().size() > 0) {
@@ -176,6 +178,9 @@ public final class IncrementalDecoder implements Decoder {
 
   @Override
   public void write(OutputStream stream) throws IOException {
+    if (!isDecodingFinished())
+      throw new IllegalStateException("Encoding is not yet finished");
+
     for (int i = 0; i < sourcePackets.length; i++) {
       SourcePacket packet = sourcePackets[i];
       byte[] data = createEmptyBuffer(packet, i == sourcePackets.length - 1);
