@@ -18,7 +18,7 @@ public final class IncrementalDecoder implements Decoder {
   private int nrDecodedPackets;
   private int packetsProcessed;
   private long filesize;
-  private boolean isFirstPacket;
+  private boolean hasFirstPacketArrived;
 
   @SuppressWarnings("rawtypes")
   private static class Packet<T extends Packet> {
@@ -83,7 +83,7 @@ public final class IncrementalDecoder implements Decoder {
 
   public IncrementalDecoder(int packetSize) {
     this.packetSize = packetSize;
-    isFirstPacket = true;
+    hasFirstPacketArrived = false;
     encodedPackets = setUpQueue();
   }
 
@@ -107,7 +107,7 @@ public final class IncrementalDecoder implements Decoder {
 
   @Override
   public boolean receive(TransmissonPacket packet) {
-    if (isFirstPacket)
+    if (!hasFirstPacketArrived)
       handleFirstPacket(packet);
     if (isDecodingFinished())
       return true;
@@ -139,7 +139,7 @@ public final class IncrementalDecoder implements Decoder {
     filesize = packet.getFilesize();
     nrPackets = (int) Math.ceil(filesize / (double)packetSize);
     sourcePackets = setUpSourcePakckets();
-    isFirstPacket = false;
+    hasFirstPacketArrived = true;
   }
 
   private void decodingStep() {
@@ -206,7 +206,7 @@ public final class IncrementalDecoder implements Decoder {
 
   @Override
   public boolean isDecodingFinished() {
-    return nrDecodedPackets == nrPackets;
+    return hasFirstPacketArrived && nrDecodedPackets == nrPackets;
   }
 
 }
