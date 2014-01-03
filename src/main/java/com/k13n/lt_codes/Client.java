@@ -2,11 +2,13 @@ package com.k13n.lt_codes;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Client {
   private final Decoder decoder;
   private final Queue<TransmissonPacket> queue;
-  private Thread decodingThread;
+  private ExecutorService executor;
 
   public Client() {
     queue = new ConcurrentLinkedQueue<>();
@@ -18,14 +20,14 @@ public class Client {
   }
 
   public synchronized void startProcessing() {
-    decodingThread = new DecoderThread();
-    decodingThread.start();
+    executor = Executors.newSingleThreadExecutor();
+    executor.submit(new DecoderJob());
   }
 
   public synchronized void stopProcessing() {
     while (!queue.isEmpty())
       sleepMillis(100);
-    shutDownDecodingThread();
+    executor.shutdownNow();
   }
 
   public void receive(TransmissonPacket packet) {
@@ -36,24 +38,17 @@ public class Client {
     return decoder.isDecodingFinished();
   }
 
-  private void shutDownDecodingThread() {
-    try {
-      decodingThread.interrupt();
-      decodingThread.join();
-    } catch (InterruptedException e) { }
-  }
-
   private void sleepMillis(int millis) {
     try {
       Thread.sleep(millis);
-    } catch (InterruptedException e) { }
+    } catch (InterruptedException ignore) { }
   }
 
-  private final class DecoderThread extends Thread {
+  private final class DecoderJob implements Runnable {
 
     @Override
     public void run() {
-      while (!isInterrupted())
+      while (!Thread.currentThread().isInterrupted())
         processNextPacketOrWait();
     }
 
@@ -68,7 +63,7 @@ public class Client {
       try {
         Thread.sleep(millis);
       } catch (InterruptedException e) {
-        this.interrupt();
+        Thread.currentThread().interrupt();
       }
     }
 
