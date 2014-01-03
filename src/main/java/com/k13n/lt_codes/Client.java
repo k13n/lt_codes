@@ -1,72 +1,44 @@
 package com.k13n.lt_codes;
 
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class Client {
   private final Decoder decoder;
-  private final Queue<TransmissonPacket> queue;
   private ExecutorService executor;
+  private Future<Boolean> lastJobFuture;
 
   public Client() {
-    queue = new ConcurrentLinkedQueue<>();
-    decoder = setUpDecoder();
-  }
-
-  private Decoder setUpDecoder() {
-    return new IncrementalDecoder(Server.DEFAULT_PACKET_SIZE);
-  }
-
-  public synchronized void startProcessing() {
     executor = Executors.newSingleThreadExecutor();
-    executor.submit(new DecoderJob());
+    decoder = new IncrementalDecoder(Server.DEFAULT_PACKET_SIZE);
   }
 
   public synchronized void stopProcessing() {
-    while (!queue.isEmpty())
-      sleepMillis(100);
-    executor.shutdownNow();
+    try {
+      lastJobFuture.get();
+    } catch (InterruptedException | ExecutionException e) {
+      e.printStackTrace();
+    } finally {
+      executor.shutdownNow();
+    }
   }
 
-  public void receive(TransmissonPacket packet) {
-    queue.offer(packet);
+  public void receive(final TransmissonPacket packet) {
+    if (decoder.isDecodingFinished())
+      return;
+
+    lastJobFuture = executor.submit(new Callable<Boolean>() {
+      @Override public Boolean call() throws Exception {
+        return decoder.receive(packet);
+      }
+    });
   }
 
   public boolean transferSucceeded() {
     return decoder.isDecodingFinished();
-  }
-
-  private void sleepMillis(int millis) {
-    try {
-      Thread.sleep(millis);
-    } catch (InterruptedException ignore) { }
-  }
-
-  private final class DecoderJob implements Runnable {
-
-    @Override
-    public void run() {
-      while (!Thread.currentThread().isInterrupted())
-        processNextPacketOrWait();
-    }
-
-    private void processNextPacketOrWait() {
-      if (!queue.isEmpty())
-        decoder.receive(queue.poll());
-      else
-        sleepMillis(100);
-    }
-
-    private void sleepMillis(int millis) {
-      try {
-        Thread.sleep(millis);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-      }
-    }
-
   }
 
 }

@@ -3,7 +3,8 @@ package com.k13n.lt_codes;
 import java.io.File;
 
 public class App {
-  private static final double DEFAULT_PACKET_OVERHEAD = 1.25;
+  private static final double DEFAULT_ERASURE_PROBABILITY = 0.1;
+  private static final double DEFAULT_PACKET_OVERHEAD = 1.38;
 
   private final File file;
   private final ErasureChannel channel;
@@ -37,11 +38,10 @@ public class App {
         client.receive(packet);
       }
     };
-    return new ErasureChannel(channelCallback, 0.0);
+    return new ErasureChannel(channelCallback, DEFAULT_ERASURE_PROBABILITY);
   }
 
   public void execute() {
-    client.startProcessing();
     server.startTransmission();
     client.stopProcessing();
 
