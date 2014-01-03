@@ -38,13 +38,13 @@ public class AppTest {
 //    final Decoder dec = new DefaultDecoder(enc.getSeed(), enc.getNPackets());
     final Decoder dec = new IncrementalDecoder(PACKET_SIZE);
 
-    final ErasureChannel channel = new ErasureChannel(
+    final ErasureChannel channel = new ErasureChannel(0.3,
       new ErasureChannel.Callback() {
         @Override
         public void call(ErasureChannel channel, TransmissonPacket packet) {
           dec.receive(packet);
         }
-      }, 0.3);
+      });
     enc.encode(new Encoder.Callback() {
       public boolean call(Encoder encoder, TransmissonPacket packet) {
         channel.transmit(packet);

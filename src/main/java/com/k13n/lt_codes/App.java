@@ -33,12 +33,13 @@ public class App {
   }
 
   private ErasureChannel setUpErasureChannel() {
-    ErasureChannel.Callback channelCallback = new ErasureChannel.Callback() {
-      @Override public void call(ErasureChannel channel, TransmissonPacket packet) {
+    ErasureChannel.Callback callback = new ErasureChannel.Callback() {
+      @Override
+      public void call(ErasureChannel channel, TransmissonPacket packet) {
         client.receive(packet);
       }
     };
-    return new ErasureChannel(channelCallback, DEFAULT_ERASURE_PROBABILITY);
+    return new ErasureChannel(DEFAULT_ERASURE_PROBABILITY, callback);
   }
 
   public void execute() {

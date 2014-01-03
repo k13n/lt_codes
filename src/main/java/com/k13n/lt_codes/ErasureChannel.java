@@ -12,9 +12,9 @@ public final class ErasureChannel {
   private final double erasureProbability;
   private AtomicLong nrTransmissions;
 
-  public ErasureChannel(Callback callback, double erasureProbability) {
-    this.callback = callback;
+  public ErasureChannel(double erasureProbability, Callback callback) {
     this.erasureProbability = erasureProbability;
+    this.callback = callback;
     nrTransmissions = new AtomicLong(0);
   }
 
