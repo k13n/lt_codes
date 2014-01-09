@@ -95,8 +95,8 @@ public class EncodedPacket {
       throw new DecodingException("Nonpositive file size");
 
     int nNeighbors = dis2.readInt();
-    if(nNeighbors <= 0)
-      throw new DecodingException("Nonpositive number of neighbors");
+    if(nNeighbors < 0)
+      throw new DecodingException("Negative number of neighbors");
 
     int[] neighbors = new int[nNeighbors];
     for(int i = 0; i < nNeighbors; i++) {
