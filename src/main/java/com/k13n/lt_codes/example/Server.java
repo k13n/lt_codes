@@ -11,21 +11,18 @@ import com.k13n.lt_codes.Encoder;
 import com.k13n.lt_codes.ErasureChannel;
 import com.k13n.lt_codes.Encoder.Callback;
 
-public class Server {
+public abstract class Server {
   public static final int DEFAULT_PACKET_SIZE = 1024;
+  protected final ErasureChannel channel;
+  protected final Encoder encoder;
   private final File file;
-  private final ErasureChannel channel;
-  private final Encoder encoder;
-  private final int packetsToTransmit;
+  private boolean stopRequested;
 
-  public Server(File file, ErasureChannel channel, double packetOverhead) {
-    if (packetOverhead < 1)
-      throw new IllegalArgumentException("The packet overhead must be >= 1");
-
+  public Server(File file, ErasureChannel channel) {
     this.file = file;
     this.channel = channel;
     this.encoder = setUpEncoder();
-    this.packetsToTransmit = (int) (encoder.getNPackets() * packetOverhead);
+    stopRequested = false;
   }
 
   private Encoder setUpEncoder() {
@@ -55,9 +52,19 @@ public class Server {
       @Override
       public boolean call(Encoder encoder, DecodedPacket packet) {
         channel.transmit(packet);
-        return channel.getNrTransmissions() >= packetsToTransmit;
+        return !stopRequested() && !transferFinished();
       }
     });
   }
+
+  public synchronized void stopTransmission() {
+    stopRequested = true;
+  }
+
+  private synchronized boolean stopRequested() {
+    return stopRequested;
+  }
+
+  abstract protected boolean transferFinished();
 
 }

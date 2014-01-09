@@ -3,6 +3,7 @@ package com.k13n.lt_codes;
 import java.io.File;
 
 import com.k13n.lt_codes.example.Client;
+import com.k13n.lt_codes.example.FixedRateServer;
 import com.k13n.lt_codes.example.Server;
 
 public class App {
@@ -19,7 +20,7 @@ public class App {
     file = ensureFileExists(filename);
     client = new Client();
     channel = setUpErasureChannel();
-    server = new Server(file, channel, DEFAULT_PACKET_OVERHEAD);
+    server = new FixedRateServer(file, channel, DEFAULT_PACKET_OVERHEAD);
   }
 
   private String parseFilename(String[] args) {
