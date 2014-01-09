@@ -2,6 +2,9 @@ package com.k13n.lt_codes;
 
 import java.io.File;
 
+import com.k13n.lt_codes.example.Client;
+import com.k13n.lt_codes.example.Server;
+
 public class App {
   private static final double DEFAULT_ERASURE_PROBABILITY = 0.1;
   private static final double DEFAULT_PACKET_OVERHEAD = 1.38;
