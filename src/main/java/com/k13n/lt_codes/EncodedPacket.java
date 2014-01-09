@@ -14,7 +14,7 @@ public class EncodedPacket {
   private final byte[] data;
   private static final int MAX_PACKET_SIZE = 1024 * 1024 * 10;
 
-  private EncodedPacket(byte[] data){
+  public EncodedPacket(byte[] data){
     this.data = data;
   }
 
