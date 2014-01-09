@@ -106,7 +106,7 @@ public final class IncrementalDecoder implements Decoder {
   }
 
   @Override
-  public boolean receive(TransmissonPacket packet) {
+  public boolean receive(DecodedPacket packet) {
     if (!hasFirstPacketArrived)
       handleFirstPacket(packet);
     if (isDecodingFinished())
@@ -122,7 +122,7 @@ public final class IncrementalDecoder implements Decoder {
     return isDecodingFinished();
   }
 
-  private EncodedPacket createPacketFromInput(TransmissonPacket packet) {
+  private EncodedPacket createPacketFromInput(DecodedPacket packet) {
     EncodedPacket encodedPacket = new EncodedPacket(packet.getData());
     for (int neighbor : packet.getNeighbors()) {
       if (!sourcePackets[neighbor].isDecoded()) {
@@ -135,7 +135,7 @@ public final class IncrementalDecoder implements Decoder {
     return encodedPacket;
   }
 
-  private void handleFirstPacket(TransmissonPacket packet) {
+  private void handleFirstPacket(DecodedPacket packet) {
     filesize = packet.getFilesize();
     nrPackets = (int) Math.ceil(filesize / (double)packetSize);
     sourcePackets = setUpSourcePakckets();

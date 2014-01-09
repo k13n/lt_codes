@@ -50,7 +50,7 @@ public class Server {
   public void startTransmission() {
     encoder.encode(new Callback() {
       @Override
-      public boolean call(Encoder encoder, TransmissonPacket packet) {
+      public boolean call(Encoder encoder, DecodedPacket packet) {
         channel.transmit(packet);
         return channel.getNrTransmissions() >= packetsToTransmit;
       }

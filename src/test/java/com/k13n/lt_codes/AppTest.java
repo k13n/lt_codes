@@ -12,6 +12,20 @@ public class AppTest {
   private static final int PACKET_SIZE = 1024;
 
   @Test
+  public void testEncoding() throws Exception {
+    DecodedPacket p = new DecodedPacket(1024,
+                                        new int[]{1,2,3,4,5,6},
+                                        new byte[]{100, 2, 44, 12, 76, -32, 34, -66});
+
+    EncodedPacket ep = EncodedPacket.encode(p);
+    DecodedPacket dp = ep.decode();
+
+    assertEquals(p.getFilesize(), dp.getFilesize());
+    assertArrayEquals(p.getNeighbors(), dp.getNeighbors());
+    assertArrayEquals(p.getData(), dp.getData());
+  }
+
+  @Test
   public void itWorksWithPerfectChannel() throws Exception {
     byte[] data = readFile(FILENAME);
     Encoder enc = new Encoder(data, PACKET_SIZE);
@@ -19,7 +33,7 @@ public class AppTest {
     final Decoder dec = new IncrementalDecoder(PACKET_SIZE);
 
     enc.encode(new Encoder.Callback() {
-      public boolean call(Encoder encoder, TransmissonPacket packet) {
+      public boolean call(Encoder encoder, DecodedPacket packet) {
         return dec.receive(packet);
       }
     });
@@ -41,12 +55,12 @@ public class AppTest {
     final ErasureChannel channel = new ErasureChannel(0.3,
       new ErasureChannel.Callback() {
         @Override
-        public void call(ErasureChannel channel, TransmissonPacket packet) {
+        public void call(ErasureChannel channel, DecodedPacket packet) {
           dec.receive(packet);
         }
       });
     enc.encode(new Encoder.Callback() {
-      public boolean call(Encoder encoder, TransmissonPacket packet) {
+      public boolean call(Encoder encoder, DecodedPacket packet) {
         channel.transmit(packet);
         return dec.isDecodingFinished();
       }

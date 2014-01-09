@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 public final class Encoder {
 
   public interface Callback {
-    public boolean call(Encoder encoder, TransmissonPacket packet);
+    public boolean call(Encoder encoder, DecodedPacket packet);
   }
 
   private static final double DEFAULT_FAILURE_PROBABILITY = 0.01;
@@ -71,7 +71,7 @@ public final class Encoder {
         }
 
         byte[] packetData = xorSet.toByteArray();
-        TransmissonPacket packet = new TransmissonPacket(filesize, neighbours, packetData);
+        DecodedPacket packet = new DecodedPacket(filesize, neighbours, packetData);
         abort = callback.call(this, packet);
 
 

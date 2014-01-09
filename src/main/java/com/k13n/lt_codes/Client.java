@@ -23,7 +23,7 @@ public class Client {
     }
   }
 
-  public void receive(final TransmissonPacket packet) {
+  public void receive(final DecodedPacket packet) {
     if (decoder.isDecodingFinished())
       return;
 

@@ -121,7 +121,7 @@ public final class DefaultDecoder implements Decoder {
   }
 
   @Override
-  public boolean receive(TransmissonPacket packet)
+  public boolean receive(DecodedPacket packet)
   {
     byte[] data = packet.getData();
     int[] neighbours = packet.getNeighbors();

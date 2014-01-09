@@ -35,7 +35,7 @@ public class App {
   private ErasureChannel setUpErasureChannel() {
     ErasureChannel.Callback callback = new ErasureChannel.Callback() {
       @Override
-      public void call(ErasureChannel channel, TransmissonPacket packet) {
+      public void call(ErasureChannel channel, DecodedPacket packet) {
         client.receive(packet);
       }
     };
