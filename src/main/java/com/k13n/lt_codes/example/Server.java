@@ -52,7 +52,7 @@ public abstract class Server {
       @Override
       public boolean call(Encoder encoder, DecodedPacket packet) {
         channel.transmit(packet);
-        return !stopRequested() && !transferFinished();
+        return stopRequested() || transferFinished();
       }
     });
   }

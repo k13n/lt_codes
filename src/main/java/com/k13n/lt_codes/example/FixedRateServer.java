@@ -18,7 +18,7 @@ public class FixedRateServer extends Server {
 
   @Override
   protected boolean transferFinished() {
-    return channel.getNrTransmissions() <= packetsToTransmit;
+    return channel.getNrTransmissions() >= packetsToTransmit;
   }
 
 }
