@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.zip.Adler32;
 import java.util.zip.Checksum;
@@ -12,7 +11,7 @@ import java.util.zip.Checksum;
 public class EncodedPacket {
   public static final String HEADER_TOKEN = "SUPERAWESOME";
   private final byte[] data;
-  private static final int MAX_PACKET_SIZE = 1024 * 1024 * 10;
+  public static final int MAX_PACKET_SIZE = 1024 * 1024;
 
   public EncodedPacket(byte[] data){
     this.data = data;
