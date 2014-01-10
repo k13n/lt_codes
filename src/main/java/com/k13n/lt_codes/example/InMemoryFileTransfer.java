@@ -1,12 +1,11 @@
-package com.k13n.lt_codes;
+package com.k13n.lt_codes.example;
 
 import java.io.File;
 
-import com.k13n.lt_codes.example.Client;
-import com.k13n.lt_codes.example.FixedRateServer;
-import com.k13n.lt_codes.example.Server;
+import com.k13n.lt_codes.DecodedPacket;
+import com.k13n.lt_codes.ErasureChannel;
 
-public class App {
+public class InMemoryFileTransfer {
   private static final double DEFAULT_ERASURE_PROBABILITY = 0.1;
   private static final double DEFAULT_PACKET_OVERHEAD = 1.38;
 
@@ -15,7 +14,7 @@ public class App {
   private Server server;
   private Client client;
 
-  public App(String[] args) {
+  public InMemoryFileTransfer(String[] args) {
     String filename = parseFilename(args);
     file = ensureFileExists(filename);
     client = new Client();
@@ -57,7 +56,7 @@ public class App {
   }
 
   public static void main(String[] args) {
-    new App(args).execute();
+    new InMemoryFileTransfer(args).execute();
   }
 
 }
