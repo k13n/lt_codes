@@ -20,7 +20,7 @@ public class BroadcastReceiver {
   private final byte[] buffer;
 
   public BroadcastReceiver() throws IOException {
-    socket = new MulticastSocket(BroadcastSender.OUTBOUND_PORT);
+    socket = new MulticastSocket(BroadcastSender.PORT);
     group = resolveGroup();
     socket.joinGroup(group);
     decoder = new IncrementalDecoder(Server.DEFAULT_PACKET_SIZE);

@@ -13,8 +13,7 @@ import com.k13n.lt_codes.ErasureChannel;
 import com.k13n.lt_codes.ErasureChannel.Callback;
 
 public class BroadcastSender {
-  public static final int SOCKET_PORT = 4445;
-  public static final int OUTBOUND_PORT = 4446;
+  public static final int PORT = 4446;
   public static final String BROADCAST_ADDRESS = "230.0.0.1";
 
   private final DatagramSocket socket;
@@ -23,7 +22,7 @@ public class BroadcastSender {
 
   public BroadcastSender(File file) throws SocketException,
       UnknownHostException {
-    socket = new DatagramSocket(SOCKET_PORT);
+    socket = new DatagramSocket();
     group = resolveGroup();
     server = new FountainServer(file, setUpChannel());
   }
@@ -45,7 +44,7 @@ public class BroadcastSender {
     try {
       byte[] data = EncodedPacket.encode(sourcePacket).toByteArray();
       DatagramPacket datagram = new DatagramPacket(data, 0, data.length, group,
-          OUTBOUND_PORT);
+          PORT);
       socket.send(datagram);
     } catch (Exception e) {
       e.printStackTrace();
@@ -56,7 +55,8 @@ public class BroadcastSender {
     server.startTransmission();
   }
 
-  public static void main(String[] args) throws SocketException, UnknownHostException {
+  public static void main(String[] args) throws SocketException,
+      UnknownHostException {
     System.out.println("sender: starting up");
     File file = new File("");
     new BroadcastSender(file).startBroadcast();
