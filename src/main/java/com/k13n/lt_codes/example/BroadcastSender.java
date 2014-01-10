@@ -43,6 +43,7 @@ public class BroadcastSender {
       @Override
       public void call(ErasureChannel channel, DecodedPacket packet) {
         sendPacket(packet);
+        sleepMillis(10);
       }
     });
   }
@@ -54,6 +55,14 @@ public class BroadcastSender {
       datagram = new DatagramPacket(data, 0, data.length, group, port);
       socket.send(datagram);
     } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void sleepMillis(int millis) {
+    try {
+      Thread.sleep(millis);
+    } catch (InterruptedException e) {
       e.printStackTrace();
     }
   }
