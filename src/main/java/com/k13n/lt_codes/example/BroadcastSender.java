@@ -13,22 +13,29 @@ import com.k13n.lt_codes.ErasureChannel;
 import com.k13n.lt_codes.ErasureChannel.Callback;
 
 public class BroadcastSender {
-  public static final int PORT = 4446;
-  public static final String BROADCAST_ADDRESS = "230.0.0.1";
+  public static final int DEFAULT_PORT = 4446;
+  public static final String DEFAULT_BROADCAST_ADDRESS = "230.0.0.1";
 
   private final DatagramSocket socket;
   private final Server server;
   private final InetAddress group;
+  private final int port;
 
-  public BroadcastSender(File file) throws SocketException,
+  public BroadcastSender(File file, int port, String address) throws SocketException,
       UnknownHostException {
+    this.port = port;
     socket = new DatagramSocket();
-    group = resolveGroup();
+    group = resolveGroup(address);
     server = new FountainServer(file, setUpChannel());
   }
 
-  private InetAddress resolveGroup() throws UnknownHostException {
-    return InetAddress.getByName(BROADCAST_ADDRESS);
+  public BroadcastSender(File file) throws SocketException,
+      UnknownHostException {
+    this(file, DEFAULT_PORT, DEFAULT_BROADCAST_ADDRESS);
+  }
+
+  private InetAddress resolveGroup(String address) throws UnknownHostException {
+    return InetAddress.getByName(address);
   }
 
   private ErasureChannel setUpChannel() {
@@ -41,10 +48,10 @@ public class BroadcastSender {
   }
 
   private void sendPacket(DecodedPacket sourcePacket) {
+    DatagramPacket datagram;
     try {
       byte[] data = EncodedPacket.encode(sourcePacket).toByteArray();
-      DatagramPacket datagram = new DatagramPacket(data, 0, data.length, group,
-          PORT);
+      datagram = new DatagramPacket(data, 0, data.length, group, port);
       socket.send(datagram);
     } catch (Exception e) {
       e.printStackTrace();
@@ -57,9 +64,13 @@ public class BroadcastSender {
 
   public static void main(String[] args) throws SocketException,
       UnknownHostException {
+    String filename = args[0];
+    int port = Integer.parseInt(args[1]);
+    String address = args[2];
+
     System.out.println("sender: starting up");
-    File file = new File("");
-    new BroadcastSender(file).startBroadcast();
+    File file = new File(filename);
+    new BroadcastSender(file, port, address).startBroadcast();
     System.out.println("sender: shutting down");
   }
 

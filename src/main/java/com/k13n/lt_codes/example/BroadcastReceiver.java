@@ -8,6 +8,7 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+
 import com.k13n.lt_codes.DecodedPacket;
 import com.k13n.lt_codes.Decoder;
 import com.k13n.lt_codes.EncodedPacket;
@@ -19,16 +20,21 @@ public class BroadcastReceiver {
   private final Decoder decoder;
   private final byte[] buffer;
 
-  public BroadcastReceiver() throws IOException {
-    socket = new MulticastSocket(BroadcastSender.PORT);
-    group = resolveGroup();
+  public BroadcastReceiver(int port, String address) throws IOException {
+    socket = new MulticastSocket(port);
+    group = resolveGroup(address);
     socket.joinGroup(group);
     decoder = new IncrementalDecoder(Server.DEFAULT_PACKET_SIZE);
     buffer = new byte[EncodedPacket.MAX_PACKET_SIZE];
   }
 
-  private InetAddress resolveGroup() throws UnknownHostException {
-    return InetAddress.getByName(BroadcastSender.BROADCAST_ADDRESS);
+  public BroadcastReceiver() throws IOException {
+    this(BroadcastSender.DEFAULT_PORT,
+        BroadcastSender.DEFAULT_BROADCAST_ADDRESS);
+  }
+
+  private InetAddress resolveGroup(String address) throws UnknownHostException {
+    return InetAddress.getByName(address);
   }
 
   public void receive() {
@@ -65,10 +71,14 @@ public class BroadcastReceiver {
   }
 
   public static void main(String[] args) throws IOException {
+    String filename = args[0];
+    int port = Integer.parseInt(args[1]);
+    String address = args[2];
+
     System.out.println("receiver: starting up");
-    BroadcastReceiver receiver = new BroadcastReceiver();
+    BroadcastReceiver receiver = new BroadcastReceiver(port, address);
     receiver.receive();
-    receiver.write("");
+    receiver.write(filename);
     System.out.println("receiver: shutting down");
   }
 
