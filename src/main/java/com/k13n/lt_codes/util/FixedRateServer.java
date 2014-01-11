@@ -1,8 +1,6 @@
-package com.k13n.lt_codes.example;
+package com.k13n.lt_codes.util;
 
 import java.io.File;
-
-import com.k13n.lt_codes.ErasureChannel;
 
 public class FixedRateServer extends Server {
   private final int packetsToTransmit;

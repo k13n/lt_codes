@@ -1,9 +1,8 @@
-package com.k13n.lt_codes.example;
+package com.k13n.lt_codes.util;
 
 import java.io.File;
 
-import com.k13n.lt_codes.DecodedPacket;
-import com.k13n.lt_codes.ErasureChannel;
+import com.k13n.lt_codes.core.DecodedPacket;
 
 public class InMemoryFileTransfer {
   private static final double DEFAULT_ERASURE_PROBABILITY = 0.1;

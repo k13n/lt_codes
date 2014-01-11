@@ -1,4 +1,4 @@
-package com.k13n.lt_codes.example;
+package com.k13n.lt_codes.broadcast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,10 +10,11 @@ import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
 import com.beust.jcommander.JCommander;
-import com.k13n.lt_codes.DecodedPacket;
-import com.k13n.lt_codes.Decoder;
-import com.k13n.lt_codes.EncodedPacket;
-import com.k13n.lt_codes.IncrementalDecoder;
+import com.k13n.lt_codes.core.DecodedPacket;
+import com.k13n.lt_codes.core.Decoder;
+import com.k13n.lt_codes.core.EncodedPacket;
+import com.k13n.lt_codes.core.IncrementalDecoder;
+import com.k13n.lt_codes.util.Server;
 
 public class BroadcastReceiver {
   private final MulticastSocket socket;

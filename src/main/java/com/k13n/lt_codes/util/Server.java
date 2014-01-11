@@ -1,4 +1,4 @@
-package com.k13n.lt_codes.example;
+package com.k13n.lt_codes.util;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -6,10 +6,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import com.k13n.lt_codes.DecodedPacket;
-import com.k13n.lt_codes.Encoder;
-import com.k13n.lt_codes.ErasureChannel;
-import com.k13n.lt_codes.Encoder.Callback;
+import com.k13n.lt_codes.core.DecodedPacket;
+import com.k13n.lt_codes.core.Encoder;
+import com.k13n.lt_codes.core.Encoder.Callback;
 
 public abstract class Server {
   public static final int DEFAULT_PACKET_SIZE = 1024;

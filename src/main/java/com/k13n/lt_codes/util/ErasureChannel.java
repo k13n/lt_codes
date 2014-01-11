@@ -1,6 +1,8 @@
-package com.k13n.lt_codes;
+package com.k13n.lt_codes.util;
 
 import java.util.concurrent.atomic.AtomicLong;
+
+import com.k13n.lt_codes.core.DecodedPacket;
 
 public final class ErasureChannel {
 

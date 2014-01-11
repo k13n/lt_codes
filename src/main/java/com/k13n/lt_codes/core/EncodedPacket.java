@@ -1,4 +1,4 @@
-package com.k13n.lt_codes;
+package com.k13n.lt_codes.core;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

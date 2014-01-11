@@ -4,6 +4,14 @@ import java.io.*;
 import java.net.URL;
 
 import org.junit.Test;
+
+import com.k13n.lt_codes.core.DecodedPacket;
+import com.k13n.lt_codes.core.Decoder;
+import com.k13n.lt_codes.core.EncodedPacket;
+import com.k13n.lt_codes.core.Encoder;
+import com.k13n.lt_codes.core.IncrementalDecoder;
+import com.k13n.lt_codes.util.ErasureChannel;
+
 import static org.junit.Assert.*;
 
 public class AppTest {
