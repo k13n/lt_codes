@@ -1,8 +1,13 @@
-package com.k13n.lt_codes.util;
+package com.k13n.lt_codes.local;
 
 import java.io.File;
 
 import com.k13n.lt_codes.core.DecodedPacket;
+import com.k13n.lt_codes.util.Client;
+import com.k13n.lt_codes.util.ErasureChannel;
+import com.k13n.lt_codes.util.FixedRateServer;
+import com.k13n.lt_codes.util.Server;
+import com.k13n.lt_codes.util.ErasureChannel.Callback;
 
 public class InMemoryFileTransfer {
   private static final double DEFAULT_ERASURE_PROBABILITY = 0.1;
@@ -35,7 +40,7 @@ public class InMemoryFileTransfer {
   }
 
   private ErasureChannel setUpErasureChannel() {
-    ErasureChannel.Callback callback = new ErasureChannel.Callback() {
+    Callback callback = new Callback() {
       @Override
       public void call(ErasureChannel channel, DecodedPacket packet) {
         client.receive(packet);
