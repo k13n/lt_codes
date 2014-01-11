@@ -8,16 +8,16 @@ import com.beust.jcommander.ParameterException;
 
 class CliArguments {
   @Parameter(names = { "-p", "--port" }, description = "Port used to open socket")
-  public Integer port = BroadcastSender.DEFAULT_PORT;
+  private Integer port = BroadcastSender.DEFAULT_PORT;
 
   @Parameter(names = { "-a", "--address" }, description = "IP broadcast address")
-  public String ipAddress = BroadcastSender.DEFAULT_BROADCAST_ADDRESS;
+  private String ipAddress = BroadcastSender.DEFAULT_BROADCAST_ADDRESS;
 
   @Parameter(names = { "-h", "--help" }, help = true)
   private Boolean help = false;
 
   @Parameter(description = "Filename")
-  public List<String> filenames = new ArrayList<>();
+  private List<String> filenames = new ArrayList<>();
 
   public Integer getPort() {
     return port;
