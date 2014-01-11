@@ -11,40 +11,41 @@ import com.k13n.lt_codes.util.Server;
 import com.k13n.lt_codes.util.ErasureChannel.Callback;
 
 public class InMemoryFileTransfer {
-  private static final double DEFAULT_ERASURE_PROBABILITY = 0.1;
-  private static final double DEFAULT_PACKET_OVERHEAD = 1.38;
+  public static final double DEFAULT_ERASURE_PROBABILITY = 0.0;
+  public static final double DEFAULT_PACKET_OVERHEAD = 1.23;
 
   private final ErasureChannel channel;
   private Server server;
   private Client client;
 
-  public InMemoryFileTransfer(File file) {
+  public InMemoryFileTransfer(File file, double erasureProbability,
+      double packetOverhead) {
     if (!file.exists())
       throw new IllegalArgumentException("File does not exist");
 
     client = new Client();
-    channel = setUpErasureChannel();
-    server = new FixedRateServer(file, channel, DEFAULT_PACKET_OVERHEAD);
+    channel = setUpErasureChannel(erasureProbability);
+    server = new FixedRateServer(file, channel, packetOverhead);
   }
 
-  private ErasureChannel setUpErasureChannel() {
+  public InMemoryFileTransfer(File file) {
+    this(file, DEFAULT_ERASURE_PROBABILITY, DEFAULT_PACKET_OVERHEAD);
+  }
+
+  private ErasureChannel setUpErasureChannel(double erasureProbability) {
     Callback callback = new Callback() {
       @Override
       public void call(ErasureChannel channel, DecodedPacket packet) {
         client.receive(packet);
       }
     };
-    return new ErasureChannel(DEFAULT_ERASURE_PROBABILITY, callback);
+    return new ErasureChannel(erasureProbability, callback);
   }
 
-  public void execute() {
+  public boolean execute() {
     server.startTransmission();
     client.stopProcessing();
-
-    if (client.transferSucceeded())
-      System.out.println("file transfer succeeded");
-    else
-      System.out.println("file transfer failed");
+    return client.transferSucceeded();
   }
 
   public static void main(String[] args) {
@@ -54,7 +55,16 @@ public class InMemoryFileTransfer {
       commander.usage();
     else {
       File file = new File(arguments.getFilename());
-      new InMemoryFileTransfer(file).execute();
+      InMemoryFileTransfer app = new InMemoryFileTransfer(file,
+          arguments.getErasureProbability(), arguments.getPacketOverhead());
+      boolean transferSucceeded = app.execute();
+
+      if (transferSucceeded)
+        System.out.println("file transfer succeeded");
+      else
+        System.out.println("file transfer failed");
+
+      System.exit(transferSucceeded ? 0 : 1);
     }
   }
 

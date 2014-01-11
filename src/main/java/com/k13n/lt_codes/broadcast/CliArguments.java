@@ -7,13 +7,16 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
 class CliArguments {
-  @Parameter(names = { "-p", "--port" }, description = "Port used to open socket")
+  @Parameter(names = { "-p", "--port" },
+      description = "Port used to open socket")
   private Integer port = BroadcastSender.DEFAULT_PORT;
 
-  @Parameter(names = { "-a", "--address" }, description = "IP broadcast address")
+  @Parameter(names = { "-a", "--address" },
+      description = "IP broadcast address")
   private String ipAddress = BroadcastSender.DEFAULT_BROADCAST_ADDRESS;
 
-  @Parameter(names = { "-h", "--help" }, help = true)
+  @Parameter(names = { "-h", "--help" }, help = true,
+      description = "Print this help message")
   private Boolean help = false;
 
   @Parameter(description = "Filename")
