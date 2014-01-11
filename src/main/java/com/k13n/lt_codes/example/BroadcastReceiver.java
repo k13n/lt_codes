@@ -9,6 +9,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
+import com.beust.jcommander.JCommander;
 import com.k13n.lt_codes.DecodedPacket;
 import com.k13n.lt_codes.Decoder;
 import com.k13n.lt_codes.EncodedPacket;
@@ -71,15 +72,18 @@ public class BroadcastReceiver {
   }
 
   public static void main(String[] args) throws IOException {
-    String filename = args[0];
-    int port = Integer.parseInt(args[1]);
-    String address = args[2];
-
-    System.out.println("receiver: starting up");
-    BroadcastReceiver receiver = new BroadcastReceiver(port, address);
-    receiver.receive();
-    receiver.write(filename);
-    System.out.println("receiver: shutting down");
+    CliArguments arguments = new CliArguments();
+    JCommander commander = new JCommander(arguments, args);
+    if (!arguments.hasFilename() || arguments.getHelp())
+      commander.usage();
+    else {
+      System.out.println("receiver: starting up");
+      BroadcastReceiver receiver = new BroadcastReceiver(arguments.getPort(),
+          arguments.getBroadcastIpAddress());
+      receiver.receive();
+      receiver.write(arguments.getFilename());
+      System.out.println("receiver: shutting down");
+    }
   }
 
 }

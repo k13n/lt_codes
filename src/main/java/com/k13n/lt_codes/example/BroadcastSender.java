@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+import com.beust.jcommander.JCommander;
 import com.k13n.lt_codes.DecodedPacket;
 import com.k13n.lt_codes.EncodedPacket;
 import com.k13n.lt_codes.ErasureChannel;
@@ -21,8 +22,8 @@ public class BroadcastSender {
   private final InetAddress group;
   private final int port;
 
-  public BroadcastSender(File file, int port, String address) throws SocketException,
-      UnknownHostException {
+  public BroadcastSender(File file, int port, String address)
+      throws SocketException, UnknownHostException {
     this.port = port;
     socket = new DatagramSocket();
     group = resolveGroup(address);
@@ -73,14 +74,18 @@ public class BroadcastSender {
 
   public static void main(String[] args) throws SocketException,
       UnknownHostException {
-    String filename = args[0];
-    int port = Integer.parseInt(args[1]);
-    String address = args[2];
-
-    System.out.println("sender: starting up");
-    File file = new File(filename);
-    new BroadcastSender(file, port, address).startBroadcast();
-    System.out.println("sender: shutting down");
+    CliArguments arguments = new CliArguments();
+    JCommander commander = new JCommander(arguments, args);
+    if (!arguments.hasFilename() || arguments.getHelp())
+      commander.usage();
+    else {
+      System.out.println("sender: starting up");
+      File filename = new File(arguments.getFilename());
+      BroadcastSender sender = new BroadcastSender(filename,
+          arguments.getPort(), arguments.getBroadcastIpAddress());
+      sender.startBroadcast();
+      System.out.println("sender: shutting down");
+    }
   }
 
 }
