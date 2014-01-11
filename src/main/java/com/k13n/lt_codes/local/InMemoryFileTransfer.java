@@ -2,6 +2,7 @@ package com.k13n.lt_codes.local;
 
 import java.io.File;
 
+import com.beust.jcommander.JCommander;
 import com.k13n.lt_codes.core.DecodedPacket;
 import com.k13n.lt_codes.util.Client;
 import com.k13n.lt_codes.util.ErasureChannel;
@@ -13,30 +14,17 @@ public class InMemoryFileTransfer {
   private static final double DEFAULT_ERASURE_PROBABILITY = 0.1;
   private static final double DEFAULT_PACKET_OVERHEAD = 1.38;
 
-  private final File file;
   private final ErasureChannel channel;
   private Server server;
   private Client client;
 
-  public InMemoryFileTransfer(String[] args) {
-    String filename = parseFilename(args);
-    file = ensureFileExists(filename);
+  public InMemoryFileTransfer(File file) {
+    if (!file.exists())
+      throw new IllegalArgumentException("File does not exist");
+
     client = new Client();
     channel = setUpErasureChannel();
     server = new FixedRateServer(file, channel, DEFAULT_PACKET_OVERHEAD);
-  }
-
-  private String parseFilename(String[] args) {
-    if (args.length == 0)
-      throw new IllegalArgumentException("No file provided");
-    return args[0];
-  }
-
-  private File ensureFileExists(String filename) {
-    File file = new File(filename);
-    if (!file.exists())
-      throw new IllegalArgumentException("File does not exist");
-    return file;
   }
 
   private ErasureChannel setUpErasureChannel() {
@@ -56,11 +44,18 @@ public class InMemoryFileTransfer {
     if (client.transferSucceeded())
       System.out.println("file transfer succeeded");
     else
-      System.out.println("file transfer did not complete");
+      System.out.println("file transfer failed");
   }
 
   public static void main(String[] args) {
-    new InMemoryFileTransfer(args).execute();
+    CliArguments arguments = new CliArguments();
+    JCommander commander = new JCommander(arguments, args);
+    if (!arguments.hasFilename() || arguments.getHelp())
+      commander.usage();
+    else {
+      File file = new File(arguments.getFilename());
+      new InMemoryFileTransfer(file).execute();
+    }
   }
 
 }
