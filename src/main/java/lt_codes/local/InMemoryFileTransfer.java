@@ -1,14 +1,14 @@
-package com.k13n.lt_codes.local;
+package lt_codes.local;
 
 import java.io.File;
 
 import com.beust.jcommander.JCommander;
-import com.k13n.lt_codes.core.DecodedPacket;
-import com.k13n.lt_codes.util.Client;
-import com.k13n.lt_codes.util.ErasureChannel;
-import com.k13n.lt_codes.util.FixedRateServer;
-import com.k13n.lt_codes.util.Server;
-import com.k13n.lt_codes.util.ErasureChannel.Callback;
+import lt_codes.core.DecodedPacket;
+import lt_codes.util.Client;
+import lt_codes.util.ErasureChannel;
+import lt_codes.util.FixedRateServer;
+import lt_codes.util.Server;
+import lt_codes.util.ErasureChannel.Callback;
 
 public class InMemoryFileTransfer {
   public static final double DEFAULT_ERASURE_PROBABILITY = 0.0;

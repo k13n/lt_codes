@@ -1,4 +1,4 @@
-package com.k13n.lt_codes.broadcast;
+package lt_codes.broadcast;
 
 import java.io.File;
 import java.net.DatagramPacket;
@@ -8,12 +8,12 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import com.beust.jcommander.JCommander;
-import com.k13n.lt_codes.core.DecodedPacket;
-import com.k13n.lt_codes.core.EncodedPacket;
-import com.k13n.lt_codes.util.ErasureChannel;
-import com.k13n.lt_codes.util.FountainServer;
-import com.k13n.lt_codes.util.Server;
-import com.k13n.lt_codes.util.ErasureChannel.Callback;
+import lt_codes.core.DecodedPacket;
+import lt_codes.core.EncodedPacket;
+import lt_codes.util.ErasureChannel;
+import lt_codes.util.FountainServer;
+import lt_codes.util.Server;
+import lt_codes.util.ErasureChannel.Callback;
 
 public class BroadcastSender {
   public static final int DEFAULT_PORT = 4446;

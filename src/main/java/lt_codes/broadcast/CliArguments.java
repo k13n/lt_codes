@@ -1,4 +1,4 @@
-package com.k13n.lt_codes.broadcast;
+package lt_codes.broadcast;
 
 import java.util.ArrayList;
 import java.util.List;

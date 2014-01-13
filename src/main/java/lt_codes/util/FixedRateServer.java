@@ -1,4 +1,4 @@
-package com.k13n.lt_codes.util;
+package lt_codes.util;
 
 import java.io.File;
 

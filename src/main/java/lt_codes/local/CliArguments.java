@@ -1,4 +1,4 @@
-package com.k13n.lt_codes.local;
+package lt_codes.local;
 
 import java.util.ArrayList;
 import java.util.List;

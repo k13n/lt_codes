@@ -1,4 +1,4 @@
-package com.k13n.lt_codes.core;
+package lt_codes.core;
 
 import java.util.Random;
 import java.util.List;
