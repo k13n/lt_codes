@@ -50,7 +50,7 @@ public class BroadcastSender {
       @Override
       public void call(ErasureChannel channel, DecodedPacket packet) {
         sendPacket(packet);
-        sleepMillis(10);
+        sleepMillis(5);
       }
     });
   }
