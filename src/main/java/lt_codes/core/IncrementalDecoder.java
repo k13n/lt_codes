@@ -10,7 +10,12 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
+import org.apache.log4j.Logger;
+
 public final class IncrementalDecoder implements Decoder {
+  private static final Logger logger = Logger
+      .getLogger(IncrementalDecoder.class);
+
   private final int packetSize;
   private final Queue<EncodedPacket> encodedPackets;
   private SourcePacket[] sourcePackets;
@@ -117,7 +122,9 @@ public final class IncrementalDecoder implements Decoder {
       encodedPackets.offer(encodedPacket);
       decodingStep();
     }
+
     packetsProcessed++;
+    logProgress();
 
     return isDecodingFinished();
   }
@@ -175,6 +182,14 @@ public final class IncrementalDecoder implements Decoder {
     return !encodedPackets.isEmpty() &&
         encodedPackets.peek().getNeighbors().size() == 1;
   }
+
+  private void logProgress() {
+    double progress = nrDecodedPackets / (double) nrPackets;
+    String format = "received: %d, decoded: %.2f%% (%d / %d)";
+    logger.debug(String.format(format, packetsProcessed, progress,
+        nrDecodedPackets, nrPackets));
+  }
+
 
   @Override
   public void write(OutputStream stream) throws IOException {

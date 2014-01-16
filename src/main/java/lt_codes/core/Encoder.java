@@ -5,7 +5,10 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.nio.ByteBuffer;
 
+import org.apache.log4j.Logger;
+
 public final class Encoder {
+  private static final Logger logger = Logger.getLogger(Encoder.class);
 
   public interface Callback {
     public boolean call(Encoder encoder, DecodedPacket packet);
@@ -21,6 +24,7 @@ public final class Encoder {
   private final RobustSolitonGenerator solitonRNG;
   private final ByteBuffer buffer;
   private final long seed;
+  private long packetCounter = 0;
 
   public Encoder(byte[] data, int packetSize) {
     this(data, packetSize, DEFAULT_FAILURE_PROBABILITY, DEFAULT_SPIKE);
@@ -69,6 +73,9 @@ public final class Encoder {
           else
             xorSet.xor(bitSet);
         }
+
+        packetCounter++;
+        logger.debug(String.format("number of encoded packets: %d", packetCounter));
 
         byte[] packetData = xorSet.toByteArray();
         DecodedPacket packet = new DecodedPacket(filesize, neighbours, packetData);
