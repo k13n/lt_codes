@@ -7,7 +7,11 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 import com.beust.jcommander.JCommander;
+
 import lt_codes.core.DecodedPacket;
 import lt_codes.core.EncodedPacket;
 import lt_codes.util.ErasureChannel;
@@ -78,6 +82,7 @@ public class BroadcastSender {
       UnknownHostException {
     CliArguments arguments = new CliArguments();
     JCommander commander = new JCommander(arguments, args);
+    setLogLevel(arguments);
     if (!arguments.hasFilename() || arguments.getHelp())
       commander.usage();
     else {
@@ -87,6 +92,12 @@ public class BroadcastSender {
           arguments.getPort(), arguments.getBroadcastIpAddress());
       sender.startBroadcast();
       System.out.println("sender: shutting down");
+    }
+  }
+
+  private static void setLogLevel(CliArguments arguments) {
+    if (arguments.isVerbose()) {
+      Logger.getRootLogger().setLevel(Level.DEBUG);
     }
   }
 

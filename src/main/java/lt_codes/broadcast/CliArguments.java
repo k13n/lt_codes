@@ -7,6 +7,14 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
 class CliArguments {
+  @Parameter(names = { "-h", "--help" }, help = true,
+      description = "Print this help message")
+  private Boolean help = false;
+
+  @Parameter(names = { "-v", "--verbose" },
+      description = "Turn on verbose output")
+  private Boolean verbose = false;
+
   @Parameter(names = { "-p", "--port" },
       description = "Port used to open socket")
   private Integer port = BroadcastSender.DEFAULT_PORT;
@@ -14,10 +22,6 @@ class CliArguments {
   @Parameter(names = { "-a", "--address" },
       description = "IP broadcast address")
   private String ipAddress = BroadcastSender.DEFAULT_BROADCAST_ADDRESS;
-
-  @Parameter(names = { "-h", "--help" }, help = true,
-      description = "Print this help message")
-  private Boolean help = false;
 
   @Parameter(description = "Filename")
   private List<String> filenames = new ArrayList<>();
@@ -42,6 +46,10 @@ class CliArguments {
 
   public Boolean getHelp() {
     return help;
+  }
+
+  public boolean isVerbose() {
+    return verbose;
   }
 
 }

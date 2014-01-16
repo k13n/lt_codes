@@ -2,7 +2,11 @@ package lt_codes.local;
 
 import java.io.File;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 import com.beust.jcommander.JCommander;
+
 import lt_codes.core.DecodedPacket;
 import lt_codes.util.Client;
 import lt_codes.util.ErasureChannel;
@@ -51,6 +55,7 @@ public class InMemoryFileTransfer {
   public static void main(String[] args) {
     CliArguments arguments = new CliArguments();
     JCommander commander = new JCommander(arguments, args);
+    setLogLevel(arguments);
     if (!arguments.hasFilename() || arguments.getHelp())
       commander.usage();
     else {
@@ -65,6 +70,12 @@ public class InMemoryFileTransfer {
         System.out.println("file transfer failed");
 
       System.exit(transferSucceeded ? 0 : 1);
+    }
+  }
+
+  private static void setLogLevel(CliArguments arguments) {
+    if (arguments.isVerbose()) {
+      Logger.getRootLogger().setLevel(Level.DEBUG);
     }
   }
 

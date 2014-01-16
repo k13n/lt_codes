@@ -9,7 +9,11 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 import com.beust.jcommander.JCommander;
+
 import lt_codes.core.DecodedPacket;
 import lt_codes.core.Decoder;
 import lt_codes.core.EncodedPacket;
@@ -75,6 +79,7 @@ public class BroadcastReceiver {
   public static void main(String[] args) throws IOException {
     CliArguments arguments = new CliArguments();
     JCommander commander = new JCommander(arguments, args);
+    setLogLevel(arguments);
     if (!arguments.hasFilename() || arguments.getHelp())
       commander.usage();
     else {
@@ -84,6 +89,12 @@ public class BroadcastReceiver {
       receiver.receive();
       receiver.write(arguments.getFilename());
       System.out.println("receiver: shutting down");
+    }
+  }
+
+  private static void setLogLevel(CliArguments arguments) {
+    if (arguments.isVerbose()) {
+      Logger.getRootLogger().setLevel(Level.DEBUG);
     }
   }
 

@@ -11,6 +11,10 @@ public class CliArguments {
       description = "Print this help message")
   private Boolean help = false;
 
+  @Parameter(names = { "-v", "--verbose" },
+      description = "Turn on verbose output")
+  private Boolean verbose = false;
+
   @Parameter(names = { "-e", "--erasure_probability" },
       description = "Probability that the channel loses a packet")
   private Double erasureProbability = InMemoryFileTransfer.DEFAULT_ERASURE_PROBABILITY;
@@ -44,6 +48,10 @@ public class CliArguments {
 
   public Double getPacketOverhead() {
     return packetOverhead;
+  }
+
+  public boolean isVerbose() {
+    return verbose;
   }
 
 }
