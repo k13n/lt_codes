@@ -184,10 +184,11 @@ public final class IncrementalDecoder implements Decoder {
   }
 
   private void logProgress() {
+    double overhead = (packetsProcessed / (double) nrPackets) * 100;
     double progress = (nrDecodedPackets / (double) nrPackets) * 100;
-    String format = "received: %d, decoded: %6.2f%% (%d / %d)";
-    logger.debug(String.format(format, packetsProcessed, progress,
-        nrDecodedPackets, nrPackets));
+    String format = "received: %6.2f%% (%d / %d), decoded: %6.2f%% (%d / %d)";
+    logger.debug(String.format(format, overhead, packetsProcessed, nrPackets,
+        progress, nrDecodedPackets, nrPackets));
   }
 
 
