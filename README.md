@@ -45,7 +45,7 @@ With the following command the application can be executed:
 
 ```shell
 java \
-  -cp lib/jcommander-1.32.jar:lt_codes-1.0-SNAPSHOT.jar \
+  -cp lib/*:lt_codes-1.0-SNAPSHOT.jar \
   lt_codes.local.InMemoryFileTransfer \
   --erasure_probability 0.1 --packet_overhead 1.40 <FILENAME>
 ```
@@ -78,7 +78,7 @@ address 224.0.0.1 use the following command:
 
 ```shell
 java \
-  -cp lib/jcommander-1.32.jar:lt_codes-1.0-SNAPSHOT.jar \
+  -cp lib/*:lt_codes-1.0-SNAPSHOT.jar \
   lt_codes.broadcast.BroadcastSender \
   --address 224.0.0.1 --port 4445 <FILENAME>
 ```
@@ -91,7 +91,7 @@ you start the sender and receiver in the same directory use a different
 
 ```shell
 java \
-  -cp lib/jcommander-1.32.jar:lt_codes-1.0-SNAPSHOT.jar \
+  -cp lib/*:lt_codes-1.0-SNAPSHOT.jar \
   lt_codes.broadcast.BroadcastReceiver \
   --address 224.0.0.1 --port 4445 <FILENAME>
 ```
