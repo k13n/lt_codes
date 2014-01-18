@@ -47,7 +47,7 @@ With the following command the application can be executed:
 java \
   -cp lib/*:lt_codes-1.0-SNAPSHOT.jar \
   lt_codes.local.InMemoryFileTransfer \
-  --erasure_probability 0.1 --packet_overhead 1.40 <FILENAME>
+  --verbose --erasure_probability 0.1 --packet_overhead 1.40 <FILENAME>
 ```
 
 
@@ -80,7 +80,7 @@ address 224.0.0.1 use the following command:
 java \
   -cp lib/*:lt_codes-1.0-SNAPSHOT.jar \
   lt_codes.broadcast.BroadcastSender \
-  --address 224.0.0.1 --port 4445 <FILENAME>
+  --verbose --address 224.0.0.1 --port 4445 <FILENAME>
 ```
 
 Similarly, the receiver can be started with the same set of parameters as
@@ -93,5 +93,5 @@ you start the sender and receiver in the same directory use a different
 java \
   -cp lib/*:lt_codes-1.0-SNAPSHOT.jar \
   lt_codes.broadcast.BroadcastReceiver \
-  --address 224.0.0.1 --port 4445 <FILENAME>
+  --verbose --address 224.0.0.1 --port 4445 <FILENAME>
 ```
